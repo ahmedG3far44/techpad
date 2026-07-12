@@ -10,7 +10,7 @@ interface RelatedProductsProps {
   currentProductId: string;
 }
 
-function RelatedProducts({ categoryName }: RelatedProductsProps) {
+function RelatedProducts({ categoryName, currentProductId }: RelatedProductsProps) {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -20,7 +20,7 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
       try {
         setLoading(true);
         const response = await fetch(
-          `${BASE_URL}/product?category=${categoryName}&limit=10`
+          `${BASE_URL}/product/category/${encodeURIComponent(categoryName)}`
         );
 
         if (!response.ok) {
@@ -28,10 +28,11 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
         }
 
         const data = await response.json();
-        const filteredProducts = data.filter(
-          (product: IProduct) => product.categoryName === categoryName
+        const filtered = data.filter(
+          (product: IProduct) =>
+            product.categoryName === categoryName && product._id !== currentProductId
         );
-        setProducts(filteredProducts);
+        setProducts(filtered);
       } catch (err: any) {
         toast.error(err?.message || "Failed to load related products");
         console.error(err?.message);
@@ -41,11 +42,11 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
     }
 
     fetchRelatedProducts();
-  }, []);
+  }, [categoryName, currentProductId]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 280;
+      const scrollAmount = scrollContainerRef.current.clientWidth * 0.75;
       const newScrollLeft =
         direction === "left"
           ? scrollContainerRef.current.scrollLeft - scrollAmount
@@ -61,15 +62,15 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
   if (loading) {
     return (
       <div className="py-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-surface-900 mb-6">
           Related Products
         </h2>
         <div className="flex gap-4 overflow-hidden">
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="bg-gray-200 rounded-lg h-72 w-52 flex-shrink-0 animate-pulse"
-            ></div>
+              className="bg-surface-100 rounded-xl h-72 min-w-[200px] sm:min-w-[240px] flex-shrink-0 animate-pulse"
+            />
           ))}
         </div>
       </div>
@@ -82,20 +83,19 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
 
   return (
     <div className="py-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-surface-900 mb-6">
         Related Products in{" "}
-        <span className="text-blue-600">{categoryName}</span>
+        <span className="text-primary-600">{categoryName}</span>
       </h2>
 
       <div className="relative group">
-        {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 -ml-4"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2.5 sm:p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 -ml-3 sm:-ml-4"
           aria-label="Scroll left"
         >
           <svg
-            className="w-6 h-6 text-gray-800"
+            className="w-5 h-5 sm:w-6 sm:h-6 text-surface-800"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -108,24 +108,29 @@ function RelatedProducts({ categoryName }: RelatedProductsProps) {
             />
           </svg>
         </button>
+
         <div
           ref={scrollContainerRef}
-          className="flex items-stretch gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+          className="flex items-stretch gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {products.map((product) => (
-            <div key={product._id} className="flex-shrink-0 w-52">
+            <div
+              key={product._id}
+              className="flex-shrink-0 w-[220px] sm:w-[260px] snap-start"
+            >
               <ProductCard {...product} />
             </div>
           ))}
         </div>
+
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 -mr-4"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-2.5 sm:p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 -mr-3 sm:-mr-4"
           aria-label="Scroll right"
         >
           <svg
-            className="w-6 h-6 text-gray-800"
+            className="w-5 h-5 sm:w-6 sm:h-6 text-surface-800"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

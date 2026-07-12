@@ -1,3 +1,9 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useCategory } from "../../context/category/CategoryContext";
+import { handlePrice } from "../../utils/handlers";
+import Button from "../Button";
+
 import {
   FaShippingFast,
   FaMoneyBillWave,
@@ -6,11 +12,6 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
-
-import { Link } from "react-router-dom";
-import  { useState, useEffect } from "react";
-import { useCategory } from "../../context/category/CategoryContext";
-import { handlePrice } from "../../utils/handlers";
 
 interface CountdownProps {
   targetHours: number;
@@ -33,45 +34,32 @@ const Countdown: React.FC<CountdownProps> = ({
     const timer = setInterval(() => {
       setTime((prev) => {
         let { hours, minutes, seconds } = prev;
-
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          minutes--;
-          seconds = 59;
-        } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-          seconds = 59;
-        }
-
+        if (seconds > 0) seconds--;
+        else if (minutes > 0) { minutes--; seconds = 59; }
+        else if (hours > 0) { hours--; minutes = 59; seconds = 59; }
         return { hours, minutes, seconds };
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   return (
     <div className="flex gap-2">
       <TimeUnit value={time.hours} label="Hours" />
-      <span className="text-white text-xl font-bold">:</span>
+      <span className="text-white/60 text-xl font-bold">:</span>
       <TimeUnit value={time.minutes} label="Mins" />
-      <span className="text-white text-xl font-bold">:</span>
+      <span className="text-white/60 text-xl font-bold">:</span>
       <TimeUnit value={time.seconds} label="Secs" />
     </div>
   );
 };
 
-const TimeUnit: React.FC<{ value: number; label: string }> = ({
-  value,
-  label,
-}) => (
-  <div className="flex flex-col items-center bg-white rounded-md px-3 py-2 min-w-[60px]">
-    <span className="text-2xl font-bold text-gray-900">
+const TimeUnit: React.FC<{ value: number; label: string }> = ({ value, label }) => (
+  <div className="flex flex-col items-center bg-white/15 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[60px] border border-white/10">
+    <span className="text-2xl font-bold text-white">
       {String(value).padStart(2, "0")}
     </span>
-    <span className="text-xs text-gray-600">{label}</span>
+    <span className="text-[10px] text-white/70 uppercase tracking-wider">{label}</span>
   </div>
 );
 
@@ -81,103 +69,20 @@ interface FeatureCardProps {
   description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  icon,
-  title,
-  description,
-}) => (
-  <div className="bg-gray-100 rounded-lg p-6 flex items-start gap-4 hover:bg-gray-200 transition-colors">
-    <div className="text-3xl text-gray-700 mt-1">{icon}</div>
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
+  <div className="bg-white rounded-xl p-5 flex items-start gap-4 border border-surface-200 hover:border-primary-200 hover:shadow-md hover:shadow-primary-500/5 transition-all duration-300 group">
+    <div className="text-primary-600 text-xl mt-1 group-hover:scale-110 transition-transform duration-300">{icon}</div>
     <div>
-      <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
+      <h3 className="font-semibold text-surface-900 mb-0.5">{title}</h3>
+      <p className="text-sm text-surface-500">{description}</p>
     </div>
   </div>
 );
 
-// interface ProductCategory {
-//   _id: string;
-//   icon: string;
-//   name: string;
-//   image: string;
-// }
-
 const Hero: React.FC = () => {
   const [categoryPage, setCategoryPage] = useState(0);
-
-  // const categories: ProductCategory[] = [
-  //   {
-  //     _id: "1",
-  //     icon: "🤖",
-  //     name: "Printers & Scanners",
-  //     image:
-  //       "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "2",
-  //     icon: "📱",
-  //     name: "Tablets",
-  //     image:
-  //       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "3",
-  //     icon: "🎧",
-  //     name: "Headphones",
-  //     image:
-  //       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "4",
-  //     icon: "🌐",
-  //     name: "Networking Devices",
-  //     image:
-  //       "https://images.unsplash.com/photo-1606904825846-647eb07f5be2?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "5",
-  //     icon: "⌚",
-  //     name: "Smartwatches",
-  //     image:
-  //       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "6",
-  //     icon: "📱",
-  //     name: "Smartphones",
-  //     image:
-  //       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "7",
-  //     icon: "💼",
-  //     name: "PC Accessories",
-  //     image:
-  //       "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "8",
-  //     icon: "💻",
-  //     name: "Gaming Laptops",
-  //     image:
-  //       "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "9",
-  //     icon: "🖥️",
-  //     name: "Monitors",
-  //     image:
-  //       "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300&h=200&fit=crop",
-  //   },
-  //   {
-  //     _id: "10",
-  //     icon: "🖥️",
-  //     name: "PC Components",
-  //     image:
-  //       "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=300&h=200&fit=crop",
-  //   },
-  // ];
   const { categories } = useCategory();
+
   const getItemsPerPage = () => {
     if (typeof window !== "undefined") {
       if (window.innerWidth < 640) return 2;
@@ -194,17 +99,13 @@ const Hero: React.FC = () => {
       setItemsPerPage(getItemsPerPage());
       setCategoryPage(0);
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const totalPages = Math.ceil(categories.length / itemsPerPage);
   const startIndex = categoryPage * itemsPerPage;
-  const visibleCategories = categories.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const visibleCategories = categories.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePrevCategory = () => {
     setCategoryPage((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
@@ -215,201 +116,198 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-gradient-to-br from-purple-900 to-black rounded-2xl p-8 lg:p-12 relative overflow-hidden">
-          <div className="absolute top-10 right-10 w-64 h-64 bg-purple-600 rounded-full opacity-10 blur-3xl"></div>
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between h-full">
-            <div className="flex-1 mb-8 lg:mb-0">
-              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+      {/* Main Hero Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
+        {/* Main Banner */}
+        <div role="region" aria-label="Hero banner" className="lg:col-span-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-surface-900 via-surface-800 to-primary-900">
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 w-56 h-56 bg-accent-500/10 rounded-full blur-3xl" />
+          <div className="relative z-10 flex flex-col lg:flex-row items-center p-6 sm:p-8 lg:p-12 min-h-[320px] lg:min-h-[400px]">
+            <div className="flex-1 text-center lg:text-left mb-6 lg:mb-0">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-4 sm:mb-6">
+                <span className="w-2 h-2 rounded-full bg-accent-400 animate-pulse-slow" />
+                <span className="text-xs font-medium text-white/90">New Arrivals Weekly</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight">
                 The Best Place To
                 <br />
-                Find And Buy
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">
-                  Amazing Products
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-400 via-accent-300 to-primary-300">
+                  Find & Buy Tech
                 </span>
               </h1>
-              <p className="text-gray-300 mb-8">
-                Grab the best deals on the latest gadgets
+              <p className="text-surface-300 text-sm sm:text-base mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0">
+                Premium PC accessories and peripherals curated for performance and style.
               </p>
-
-              <div className="flex items-center gap-4 mb-8">
-                <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                  Products 5000+
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 justify-center lg:justify-start">
+                <Button variant="primary" size="lg" to="/category/keyboards">
+                  Shop Now
+                </Button>
+                <Button variant="ghost" size="lg" to="/category/mice" className="text-white hover:text-white hover:bg-white/10">
+                  Explore Products
+                </Button>
+              </div>
+              <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8 justify-center lg:justify-start">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-primary-600 flex items-center justify-center text-white text-xs font-bold">
+                      {i}
+                    </div>
+                  ))}
+                </div>
+                <span className="text-surface-400 text-xs sm:text-sm">
+                  <strong className="text-white font-semibold">5000+</strong> happy customers
                 </span>
               </div>
             </div>
-
             <div className="flex-1 flex justify-center items-center">
-              <img
-                src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=500&h=500&fit=crop"
-                alt="VR Experience"
-                className="w-full max-w-md object-contain drop-shadow-2xl"
-              />
-            </div>
-          </div>
-          <div className="absolute bottom-8 left-8 flex gap-4">
-            <img
-              src="https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=100&h=100&fit=crop"
-              alt="Product"
-              className="w-20 h-20 rounded-lg object-cover"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-300 rounded-full opacity-30 blur-2xl"></div>
-
-            <span className="bg-white text-orange-600 px-3 py-1 rounded-full text-xs font-semibold inline-block mb-4">
-              Limited Week Deal
-            </span>
-
-            <p className="text-sm text-gray-700 mb-2">
-              Hurry Up! Offer ends In:
-            </p>
-
-            <Countdown targetHours={7} targetMinutes={23} targetSeconds={53} />
-
-            <div className="mt-6 flex justify-end">
-              <img
-                src="https://images.unsplash.com/photo-1617802690992-15d93263d3a9?w=200&h=200&fit=crop"
-                alt="VR Headset"
-                className="w-32 h-32 object-contain drop-shadow-lg"
-              />
-            </div>
-
-            <div className="mt-4">
-              <span className="text-2xl font-bold text-orange-600">
-                {handlePrice(2500)}
-              </span>
-              <span className="text-sm text-gray-500 line-through ml-2">
-                {handlePrice(3000)}
-              </span>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-red-800 to-red-950 rounded-2xl p-6 relative overflow-hidden text-white">
-            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-black opacity-50"></div>
-
-            <div className="relative z-10">
-              <h3 className="text-lg font-bold mb-2">
-                Redefine your world
-                <br />
-                with 150mp camera
-              </h3>
-
-              <div className="absolute top-0 right-0 bg-orange-500 px-3 py-1 rounded-bl-lg">
-                <p className="text-xs">SAVE UP TO</p>
-                <p className="text-3xl font-bold">70%</p>
-                <p className="text-xs">OFF</p>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/30 to-accent-500/30 rounded-full blur-2xl animate-pulse-slow" />
+                <img
+                  src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=500&h=500&fit=crop"
+                  alt="Wireless headset and keyboard on desk"
+                  role="img"
+                  aria-label="Tech products showcase"
+                  className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[380px] object-contain drop-shadow-2xl animate-float"
+                />
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="relative z-10 mt-20">
-              <img
-                src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=200&fit=crop"
-                alt="Smartphone"
-                className="w-full h-32 object-contain"
-              />
+        {/* Side Cards */}
+        <div className="flex flex-col gap-4 sm:gap-6">
+          {/* Flash Deal */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-accent-600 via-accent-500 to-orange-500 p-5 sm:p-6">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 mb-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse-slow" />
+                <span className="text-[10px] font-semibold text-white uppercase tracking-wider">Limited Deal</span>
+              </div>
+              <p className="text-sm text-white/80 mb-3">Offer ends in:</p>
+              <Countdown targetHours={7} targetMinutes={23} targetSeconds={53} />
+              <div className="mt-4 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-white/70">Wireless Headset</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xl font-bold text-white">{handlePrice(199)}</span>
+                    <span className="text-sm text-white/60 line-through">{handlePrice(299)}</span>
+                  </div>
+                </div>
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/10 flex items-center justify-center text-white text-lg font-bold border-2 border-white/20">
+                  -33%
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <button className="bg-white text-red-800 px-6 py-2 rounded-lg font-semibold text-sm mt-4 hover:bg-gray-100 transition-colors">
-                SHOP NOW
-              </button>
-
-              <p className="text-xs mt-2 opacity-80">Use Code: 0102444</p>
+          {/* Save Banner */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-surface-900 via-surface-800 to-accent-900 p-5 sm:p-6">
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-accent-500/10 rounded-full blur-2xl" />
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs text-accent-300 font-medium mb-1">FLASH SALE</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                    Save Big on
+                    <br />
+                    Premium Gear
+                  </h3>
+                </div>
+                <div className="bg-accent-500 rounded-lg px-3 py-2 text-center">
+                  <p className="text-[10px] text-white/80 uppercase">Save</p>
+                  <p className="text-2xl font-black text-white">40%</p>
+                </div>
+              </div>
+              <div className="mt-3">
+                <Link
+                  to="/category/monitors"
+                  className="inline-flex items-center gap-1.5 text-xs text-accent-300 hover:text-accent-200 font-medium transition-colors"
+                >
+                  Shop Monitors
+                  <FaChevronRight size={10} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="my-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <FeatureCard
-          icon={<FaShippingFast />}
-          title="Free Shipping"
-          description="Available for orders above ₹1000"
-        />
-        <FeatureCard
-          icon={<FaMoneyBillWave />}
-          title="Cash On Delivery"
-          description="Available for orders above ₹500"
-        />
-        <FeatureCard
-          icon={<FaShieldAlt />}
-          title="Secure Payment"
-          description="Safe shopping guarantee"
-        />
-        <FeatureCard
-          icon={<FaCertificate />}
-          title="Warranty Policy"
-          description="30 days Money back guarantee"
-        />
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-14">
+        <FeatureCard icon={<FaShippingFast />} title="Free Shipping" description="Orders above ₹1000" />
+        <FeatureCard icon={<FaMoneyBillWave />} title="Cash On Delivery" description="Available for most areas" />
+        <FeatureCard icon={<FaShieldAlt />} title="Secure Payment" description="Safe shopping guaranteed" />
+        <FeatureCard icon={<FaCertificate />} title="Warranty Policy" description="30 days money back" />
       </div>
 
-      <h2 className="text-xl sm:text-2xl text-center font-bold text-gray-900">
-        Category Products Collections
-      </h2>
-
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+      {/* Category Section */}
+      <div className="mb-8 sm:mb-12">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-surface-900">
+              Shop by Category
+            </h2>
+            <p className="text-sm text-surface-500 mt-1">Browse our curated collections</p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={handlePrevCategory}
               disabled={totalPages <= 1}
-              className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed p-2 sm:p-3 rounded-lg transition-colors"
-              aria-label="Previous categories"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-surface-100 hover:bg-surface-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-surface-600"
+              aria-label="Previous"
             >
-              <FaChevronLeft className="text-sm sm:text-base" />
+              <FaChevronLeft className="text-xs sm:text-sm" />
             </button>
             <button
               onClick={handleNextCategory}
               disabled={totalPages <= 1}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 sm:p-3 rounded-lg transition-colors"
-              aria-label="Next categories"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-white"
+              aria-label="Next"
             >
-              <FaChevronRight className="text-sm sm:text-base" />
+              <FaChevronRight className="text-xs sm:text-sm" />
             </button>
           </div>
         </div>
+
         <div className="relative overflow-hidden">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 transition-all duration-300">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             {visibleCategories.map((category) => (
-              <div
+              <Link
                 key={category._id}
-                className="bg-gray-100 rounded-xl p-3 sm:p-4 lg:p-6 flex flex-col items-center justify-center hover:bg-gray-200 hover:shadow-md transition-all cursor-pointer group"
+                to={`/category/${category.name.toLocaleLowerCase().split(" ").join("-").trim()}`}
+                className="group relative bg-white rounded-xl border border-surface-200 p-3 sm:p-4 lg:p-5 flex flex-col items-center justify-center hover:border-primary-300 hover:shadow-lg hover:shadow-primary-500/10 transition-all duration-300"
               >
-                <div className="w-full aspect-[4/3] mb-3 sm:mb-4 overflow-hidden rounded-lg">
+                <div className="w-full aspect-square mb-3 overflow-hidden rounded-lg bg-surface-50">
                   <img
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
-                <Link
-                  to={`/category/${category.name
-                    .toLocaleLowerCase()
-                    .split(" ")
-                    .join("-")
-                    .trim()}`}
-                  className="text-sm sm:text-base lg:text-lg font-medium text-gray-700 text-center group-hover:text-blue-600 transition-colors line-clamp-2"
-                >
+                <span className="text-xs sm:text-sm font-medium text-surface-700 text-center group-hover:text-primary-600 transition-colors line-clamp-2">
                   {category.name}
-                </Link>
-              </div>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
+
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div role="tablist" aria-label="Category pages" className="flex justify-center gap-2 mt-6">
             {Array.from({ length: totalPages }).map((_, index) => (
               <button
                 key={index}
+                role="tab"
+                aria-selected={index === categoryPage}
                 onClick={() => setCategoryPage(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all duration-300 ${
                   index === categoryPage
-                    ? "bg-blue-600 w-6"
-                    : "bg-gray-300 hover:bg-gray-400"
+                    ? "bg-primary-600 w-6"
+                    : "bg-surface-300 hover:bg-surface-400 w-2"
                 }`}
-                aria-label={`Go to page ${index + 1}`}
+                aria-label={`Page ${index + 1}`}
               />
             ))}
           </div>

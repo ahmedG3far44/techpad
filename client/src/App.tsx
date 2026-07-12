@@ -1,5 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 
 import CartPage from "./pages/cart";
 import LoginPage from "./pages/login";
@@ -23,13 +24,22 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminCategory from "./components/admin/AdminCategory";
 import CategoryProvider from "./context/category/CategoryProvider";
+import { CurrencyProvider } from "./context/currency/CurrencyContext";
+import AdminSettings from "./components/admin/AdminSettings";
+import SEO from "./components/SEO";
 import Home from "./pages/Home";
 
 function App() {
   return (
+    <HelmetProvider>
     <AuthProvider>
+      <CurrencyProvider>
       <CartProvider>
         <CategoryProvider>
+          <SEO title="Home" description="Premium PC accessories and tech peripherals curated for performance and style." />
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:outline-none">
+            Skip to main content
+          </a>
           <Toaster position="bottom-center" reverseOrder={false} />
           <BrowserRouter>
             <Routes>
@@ -71,6 +81,10 @@ function App() {
                     path="shipped-orders"
                     element={<AdminOrders OrderStatus="shipped" />}
                   />
+                  <Route
+                    path="settings"
+                    element={<AdminSettings />}
+                  />
                 </Route>
               </Route>
 
@@ -79,7 +93,9 @@ function App() {
           </BrowserRouter>
         </CategoryProvider>
       </CartProvider>
+      </CurrencyProvider>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 

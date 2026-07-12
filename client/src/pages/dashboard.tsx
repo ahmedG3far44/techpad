@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { LuBox } from "react-icons/lu";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiSettings, FiMenu, FiX } from "react-icons/fi";
 import { MdAccessTime } from "react-icons/md";
 import { PiUsersDuotone } from "react-icons/pi";
 import { OrdersCountType } from "../utils/types";
@@ -12,6 +12,7 @@ import { TbShoppingCartCopy, TbSitemap } from "react-icons/tb";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import useAuth from "../context/auth/AuthContext";
+import SEO from "../components/SEO";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
@@ -20,6 +21,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [pending, setPending] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [orderStatus, setOrderStatus] = useState<OrdersCountType>({
     pending: 0,
     delivered: 0,
@@ -115,6 +117,13 @@ function Dashboard() {
       path: "/dashboard/shipped-orders",
       icon: <LiaShippingFastSolid size={20} />,
     },
+    {
+      id: 10,
+      name: "Settings",
+      link: "settings",
+      path: "/dashboard/settings",
+      icon: <FiSettings size={20} />,
+    },
   ];
 
   const handelLogout = () => {
@@ -122,18 +131,45 @@ function Dashboard() {
     navigate("/");
   };
   return (
-    <div className="w-full min-h-screen max-w-full flex justify-start bg-zinc-300 items-start  relative ">
+    <>
+      <SEO title="Admin Dashboard" description="Manage your store." />
+      <div className="w-full min-h-screen max-w-full flex justify-start bg-surface-100 items-start relative">
       <DashboardSidebar
         dashboardList={dashboardList}
         pending={pending}
         orderStatus={orderStatus}
         activeLink={activeLink as string}
         handelLogout={handelLogout}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
       />
-      <main className="w-[80%] min-h-screen h-screen overflow-y-auto absolute right-0 top-0  p-4 max-sm:w-full max-md:w-full max-sm:relative max-md:relative">
+      <main className="w-[80%] min-h-screen h-screen overflow-y-auto absolute right-0 top-0 p-4 max-sm:w-full max-md:w-full max-sm:relative max-md:relative bg-surface-50">
+        <div className="flex items-center justify-between mb-4 md:hidden">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="flex items-center justify-center w-10 h-10 text-surface-600 hover:text-primary-600 hover:bg-primary-50 rounded-xl motion-safe:transition-all motion-safe:duration-150"
+            aria-label="Open menu"
+          >
+            <FiMenu size={22} />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xs">D</span>
+            </div>
+            <span className="text-sm font-semibold text-surface-700">Dashboard</span>
+          </div>
+          <button
+            onClick={handelLogout}
+            className="flex items-center justify-center w-10 h-10 text-surface-500 hover:text-red-600 hover:bg-red-50 rounded-xl motion-safe:transition-all motion-safe:duration-150"
+            aria-label="Logout"
+          >
+            <FiLogOut size={18} />
+          </button>
+        </div>
         {<Outlet />}
       </main>
     </div>
+    </>
   );
 }
 
@@ -150,127 +186,77 @@ interface DashboardSidebarProps {
   };
   pending: boolean;
   handelLogout: () => void;
+  isMobileMenuOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export function DashboardSidebar({
-  dashboardList,
-  activeLink,
-  orderStatus,
-  pending,
-  handelLogout,
+function SidebarContent({
+  dashboardList, activeLink, orderStatus, pending, handelLogout, onCloseMobile,
 }: DashboardSidebarProps) {
   return (
-    <aside className="min-h-screen h-full w-[280px] bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 p-6 flex flex-col justify-between items-start fixed left-0 top-0 max-md:hidden max-sm:hidden shadow-sm">
-      <div className="w-full mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-xl">D</span>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Dashboard</h2>
-            <p className="text-xs text-gray-500">Admin Panel</p>
+            <h2 className="text-xl font-bold text-surface-900">Dashboard</h2>
+            <p className="text-xs text-surface-500">Admin Panel</p>
           </div>
         </div>
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="flex items-center justify-center w-9 h-9 text-surface-500 hover:text-surface-700 hover:bg-surface-100 rounded-xl motion-safe:transition-all motion-safe:duration-150"
+            aria-label="Close menu"
+          >
+            <FiX size={20} />
+          </button>
+        )}
       </div>
 
-      <nav className="w-full flex-1 overflow-y-auto">
-        <ul className="w-full flex flex-col items-start gap-2">
-          {dashboardList.map((url) => {
+      <nav className="flex-1 overflow-y-auto">
+        <ul className="flex flex-col gap-1">
+          {dashboardList.map((url: any) => {
             const isActive = url.link === activeLink;
             let notificationCount = 0;
-            if (url.link === "pending-orders") {
-              notificationCount = orderStatus.pending;
-            } else if (url.link === "shipped-orders") {
-              notificationCount = orderStatus.shipped;
-            } else if (url.link === "all-orders") {
-              notificationCount = orderStatus.totalOrders;
-            }
+            if (url.link === "pending-orders") notificationCount = orderStatus.pending;
+            else if (url.link === "shipped-orders") notificationCount = orderStatus.shipped;
+            else if (url.link === "all-orders") notificationCount = orderStatus.totalOrders;
 
             return (
               <li key={url.id} className="w-full">
                 <a
                   href={url.path}
-                  className={`
-                    group relative w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl
-                    transition-all duration-200 ease-in-out
-                    ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-                        : "text-gray-700 hover:bg-white hover:shadow-sm"
-                    }
-                  `}
+                  onClick={onCloseMobile}
+                  className={`group relative w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl motion-safe:transition-all motion-safe:duration-150 ${
+                    isActive
+                      ? "bg-primary-600 text-white shadow-sm shadow-primary-200"
+                      : "text-surface-600 hover:bg-surface-100"
+                  }`}
                 >
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full" />
-                  )}
-
                   <div className="flex items-center gap-3 flex-1">
-                    <span
-                      className={`
-                        text-xl transition-transform duration-200
-                        ${isActive ? "scale-110" : "group-hover:scale-110"}
-                      `}
-                    >
+                    <span className={`text-lg motion-safe:transition-transform motion-safe:duration-150 ${isActive ? "" : "group-hover:scale-110"}`}>
                       {url.icon}
                     </span>
-
-                    <span
-                      className={`
-                        font-medium text-sm
-                        ${isActive ? "font-semibold" : ""}
-                      `}
-                    >
+                    <span className={`font-medium text-sm ${isActive ? "font-semibold" : ""}`}>
                       {url.name}
                     </span>
                   </div>
-
                   {pending ? (
-                    <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse" />
-                  ) : (
-                    <>
-                      {notificationCount > 0 && (
-                        <>
-                          {url.link === "all-orders" ? (
-                            <span
-                              className={`
-                                text-xs font-semibold px-2 py-1 rounded-md
-                                ${
-                                  isActive
-                                    ? "bg-white/20 text-white"
-                                    : "bg-gray-200 text-gray-600"
-                                }
-                              `}
-                            >
-                              {notificationCount}
-                            </span>
-                          ) : (
-                            <span className="relative flex items-center justify-center">
-                              <span
-                                className={`
-                                  inline-flex items-center justify-center min-w-[24px] h-6 px-2
-                                  text-xs font-bold rounded-full
-                                  ${
-                                    isActive
-                                      ? "bg-white text-blue-600"
-                                      : "bg-blue-600 text-white"
-                                  }
-                                  shadow-sm
-                                `}
-                              >
-                                {notificationCount > 99
-                                  ? "99+"
-                                  : notificationCount}
-                              </span>
-
-                              {!isActive && notificationCount > 0 && (
-                                <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 animate-ping" />
-                              )}
-                            </span>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
+                    <div className="w-5 h-5 bg-surface-200 rounded animate-pulse" />
+                  ) : notificationCount > 0 ? (
+                    url.link === "all-orders" ? (
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${isActive ? "bg-white/20 text-white" : "bg-surface-200 text-surface-600"}`}>
+                        {notificationCount}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center justify-center min-w-[24px] h-5 px-1.5 text-xs font-bold rounded-full shadow-sm bg-primary-600 text-white">
+                        {notificationCount > 99 ? "99+" : notificationCount}
+                      </span>
+                    )
+                  ) : null}
                 </a>
               </li>
             );
@@ -278,38 +264,46 @@ export function DashboardSidebar({
         </ul>
       </nav>
 
-      <div className="w-full pt-6 border-t border-gray-200 mb-4">
+      <div className="pt-6 border-t border-surface-200 mb-4">
         <div className="flex items-center gap-3 px-2 py-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold text-sm">AD</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">
-              Admin User
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              adminuser@techbad.com
-            </p>
+            <p className="text-sm font-semibold text-surface-900 truncate">Admin</p>
+            <p className="text-xs text-surface-500 truncate">admin@techpad.com</p>
           </div>
         </div>
       </div>
 
       <button
         onClick={handelLogout}
-        className="
-          w-full flex items-center justify-center gap-2
-          px-4 py-3.5 rounded-xl
-          bg-white text-gray-700 font-semibold
-          border-2 border-gray-200
-          hover:bg-red-50 hover:text-red-600 hover:border-red-200
-          transition-all duration-200
-          shadow-sm hover:shadow-md
-          group cursor-pointer
-        "
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-surface-50 text-surface-700 font-semibold border border-surface-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 motion-safe:transition-all motion-safe:duration-150 shadow-sm hover:shadow group cursor-pointer"
       >
-        <FiLogOut className="text-lg transition-transform duration-200 group-hover:translate-x-1" />
+        <FiLogOut className="text-lg motion-safe:transition-transform motion-safe:duration-150 group-hover:translate-x-0.5" />
         <span>Logout</span>
       </button>
-    </aside>
+    </div>
+  );
+}
+
+export function DashboardSidebar(props: DashboardSidebarProps) {
+  const { isMobileMenuOpen, onCloseMobile } = props;
+  return (
+    <>
+      <aside className="min-h-screen h-full w-[280px] bg-white border-r border-surface-200 p-6 flex-col justify-between fixed left-0 top-0 shadow-sm max-md:hidden max-sm:hidden hidden md:flex">
+        <SidebarContent {...props} onCloseMobile={undefined} />
+      </aside>
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCloseMobile} />
+          <aside className="absolute left-0 top-0 bottom-0 w-[280px] max-w-[85vw] bg-white shadow-2xl motion-safe:animate-slideRight motion-safe:[animation-fill-mode:backwards]">
+            <div className="h-full p-6 overflow-y-auto">
+              <SidebarContent {...props} />
+            </div>
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

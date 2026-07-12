@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 
-import notionAvatar1 from "../../../public/notion-avatar-1.png";
-import notionAvatar2 from "../../../public/notion-avatar-2.png";
-import notionAvatar3 from "../../../public/notion-avatar-3.png";
+import { FaCrown } from "react-icons/fa";
+import { HiOutlineUserGroup } from "react-icons/hi";
 
 import useAuth from "../../context/auth/AuthContext";
 
@@ -13,9 +12,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
 function TopRatedCustomers() {
   const [pending, setPending] = useState(false);
-  const [topCustomers, setTopCustomers] = useState<TopCustomer[] | []>([]);
-  const randomInt = Math.floor(Math.random() * 3);
-  const avatars = [notionAvatar1, notionAvatar2, notionAvatar3];
+  const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([]);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -39,34 +36,33 @@ function TopRatedCustomers() {
         setPending(false);
       }
     }
-
     getTopRatedCustomers();
   }, [token]);
+
   return (
     <div>
-      <h1>Top Spending Customers</h1>
+      <h2 className="text-base font-semibold text-surface-800 mb-4 flex items-center gap-2">
+        <FaCrown className="w-4 h-4 text-accent-500" />
+        Top Spending Customers
+      </h2>
       {pending ? (
-        <div className="flex flex-col justify-start items-start w-full gap-1 mt-4">
-          <TopCustomerSkeleton />
-          <TopCustomerSkeleton />
-          <TopCustomerSkeleton />
-          <TopCustomerSkeleton />
-          <TopCustomerSkeleton />
-          <TopCustomerSkeleton />
+        <div className="flex flex-col gap-2">
+          {[...Array(5)].map((_, i) => (
+            <TopCustomerSkeleton key={i} />
+          ))}
         </div>
+      ) : topCustomers.length === 0 ? (
+        <p className="text-sm text-surface-400 text-center py-8">No customer data yet</p>
       ) : (
-        <div className="flex flex-col justify-start items-start w-full gap-1 mt-4">
-          {topCustomers.map((customer) => {
-            return (
-              <TopCustomerCard
-                key={customer.userId}
-                email={customer.email}
-                profile={avatars[randomInt]}
-                orderCount={customer.orderCount}
-                totalSpent={customer.totalSpent}
-              />
-            );
-          })}
+        <div className="flex flex-col gap-1.5">
+          {topCustomers.map((customer) => (
+            <TopCustomerCard
+              key={customer.userId}
+              email={customer.email}
+              orderCount={customer.orderCount}
+              totalSpent={customer.totalSpent}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -79,41 +75,37 @@ function TopCustomerCard({
   email,
   totalSpent,
   orderCount,
-  profile,
 }: TopCustomer) {
-  return (
-    <div className="w-full flex items-center justify-center p-2 rounded-md border border-zinc-100 max-sm:flex-wrap max-md:flex-wrap">
-      <div className="flex justify-start items-center gap-2">
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-300">
-          <img
-            loading="lazy"
-            className={"w-full h-full object-cover"}
-            src={profile}
-            alt="notion avatar img for profile "
-          />
-        </div>
-        <h1 className="text-sm text-zinc-400">{email}</h1>
-      </div>
+  const initials = email
+    ? email.charAt(0).toUpperCase()
+    : "?";
 
-      <div className="ml-auto flex justify-center items-start gap-10">
-        <div className="flex justify-start  items-center gap-2 w-[150px] text-sm text-zinc-500 max-sm:hidden max-md:hidden">
-          <span>{orderCount}</span>
-          <span>{orderCount <= 1 ? "order" : "orders"}</span>
-        </div>
-        <div>{handlePrice(totalSpent)}</div>
+  return (
+    <div className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-surface-200 bg-white motion-safe:transition-all motion-safe:duration-150 hover:border-surface-300 hover:shadow-sm">
+      <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+        <span className="text-xs font-bold text-primary-700">{initials}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-surface-700 truncate">{email}</p>
+      </div>
+      <div className="flex items-center gap-4 text-sm flex-shrink-0">
+        <span className="text-surface-400 whitespace-nowrap">
+          {orderCount} {orderCount <= 1 ? "order" : "orders"}
+        </span>
+        <span className="font-semibold text-surface-800 whitespace-nowrap">
+          {handlePrice(totalSpent)}
+        </span>
       </div>
     </div>
   );
 }
+
 function TopCustomerSkeleton() {
   return (
-    <div className="w-full flex items-center justify-between p-2 rounded-md bg-zinc-50">
-      <div className="flex justify-start items-center gap-2">
-        <div className="w-8 h-8 rounded-full overflow-hidden animate-pulse bg-zinc-200"></div>
-        <div className=" rounded-xl w-[200px] h-5 animate-pulse bg-zinc-200"></div>
-      </div>
-
-      <div className="rounded-xl w-[60px] h-5 animate-pulse bg-zinc-200"></div>
+    <div className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface-50 animate-pulse">
+      <div className="w-8 h-8 rounded-full bg-surface-200" />
+      <div className="flex-1 h-4 bg-surface-200 rounded" />
+      <div className="w-28 h-4 bg-surface-200 rounded" />
     </div>
   );
 }

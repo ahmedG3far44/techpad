@@ -10,10 +10,10 @@ const app = express();
 
 const port = process.env.PORT as string;
 const env = process.env.NODE_ENV as string;
-// const allowedOrigins = process.env.ALLOWED_ORIGINS as string;
+const allowedOrigins = process.env.ALLOWED_ORIGINS as string;
 
 const corsOptions = {
-  origin: "*",
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,

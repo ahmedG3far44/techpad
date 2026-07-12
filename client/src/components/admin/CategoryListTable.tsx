@@ -11,6 +11,7 @@ import { CgSpinner } from "react-icons/cg";
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 
 import useAuth from "../../context/auth/AuthContext";
+import { handlePrice } from "../../utils/handlers";
 
 export interface Category {
   _id: string;
@@ -357,18 +358,18 @@ const CategoryListTable: React.FC = () => {
   }, []);
 
   return (
-    <>
+    <div className="motion-safe:animate-fadeIn motion-safe:[animation-fill-mode:backwards]">
       {successMessage && !showEditModal && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-          <FiCheck className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-3">
+          <FiCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-green-900">
+            <p className="text-sm font-medium text-emerald-900">
               {successMessage}
             </p>
           </div>
           <button
             onClick={() => setSuccessMessage(null)}
-            className="text-green-600 hover:text-green-800"
+            className="text-emerald-600 hover:text-emerald-800 motion-safe:transition-colors"
           >
             <FiX className="w-4 h-4" />
           </button>
@@ -376,18 +377,18 @@ const CategoryListTable: React.FC = () => {
       )}
 
       {pending ? (
-        <div className="bg-white w-full px-4 py-8 border border-zinc-50 rounded-md shadow-md h-[500px] flex items-center justify-center mx-auto">
-          <CgSpinner className="animate-spin" size={30} />
+        <div className="bg-white w-full px-4 py-8 border border-surface-200 rounded-xl h-[500px] flex items-center justify-center mx-auto">
+          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-xl border border-surface-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-surface-200">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-base font-semibold text-surface-900">
                   All Categories
                 </h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-surface-500 mt-1">
                   Showing {categories.length} of {categories.length} categories
                 </p>
               </div>
@@ -395,61 +396,51 @@ const CategoryListTable: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="w-full" aria-label="Categories table">
+              <thead className="bg-surface-50 border-b border-surface-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sales
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Products
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {["Category", "Description", "Sales", "Products", "Actions"].map((h) => (
+                    <th key={h} scope="col" className={`px-6 py-3 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider ${h === "Actions" ? "text-right" : ""}`}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-surface-100">
                 {categories.map((category) => (
                   <tr
                     key={category._id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-surface-50 motion-safe:transition-colors motion-safe:duration-100"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-16 w-16 p-1 rounded-lg border border-zinc-300">
+                        <div className="flex-shrink-0 h-16 w-16 p-1 rounded-lg border border-surface-200 bg-surface-50">
                           <img
-                            className="h-16 w-16 rounded-lg object-contain border border-gray-200"
+                            className="h-full w-full rounded-lg object-contain"
                             src={category.image}
                             alt={category.name}
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                           />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-surface-900">
                             {category.name}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-600 max-w-xs truncate">
+                      <div className="text-sm text-surface-600 max-w-xs truncate">
                         {category.description}
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-semibold">
-                      <div className="text-sm text-gray-600 max-w-xs truncate">
-                        <span>{category.categorySales?.toLocaleString()}</span>{" "}
-                        <span>USD</span>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-surface-600">
+                        <span className="font-medium text-surface-800">{handlePrice(category.categorySales || 0)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                         {category.numberOfProducts || 0} products
                       </span>
                     </td>
@@ -460,10 +451,11 @@ const CategoryListTable: React.FC = () => {
                           deletingId === category._id ||
                           updatingId === category._id
                         }
-                        className="text-blue-600 hover:text-blue-900 mr-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="text-primary-600 hover:text-primary-800 mr-4 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:transition-colors motion-safe:duration-100"
                         title="Edit category"
+                        aria-label={category.name}
                       >
-                        <FiEdit2 className="w-4 h-4 inline" />
+                        <FiEdit2 className="w-4 h-4 inline align-text-bottom" />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(category)}
@@ -471,10 +463,11 @@ const CategoryListTable: React.FC = () => {
                           deletingId === category._id ||
                           updatingId === category._id
                         }
-                        className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed motion-safe:transition-colors motion-safe:duration-100"
                         title="Delete category"
+                        aria-label={category.name}
                       >
-                        <FiTrash2 className="w-4 h-4 inline" />
+                        <FiTrash2 className="w-4 h-4 inline align-text-bottom" />
                       </button>
                     </td>
                   </tr>
@@ -485,38 +478,42 @@ const CategoryListTable: React.FC = () => {
 
           {categories.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">No categories found</p>
+              <svg className="mx-auto h-12 w-12 text-surface-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-sm font-medium text-surface-700">No categories found</p>
+              <p className="text-xs text-surface-400 mt-1">Get started by creating a new category</p>
             </div>
           )}
         </div>
       )}
 
       {showEditModal && editingCategory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-label="Edit category">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto motion-safe:animate-scaleIn">
+            <div className="px-6 py-4 border-b border-surface-200 flex items-center justify-between sticky top-0 bg-white z-10">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-surface-900">
                   Edit Category
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-surface-500 mt-1">
                   Update category information
                 </p>
               </div>
               <button
                 onClick={closeEditModal}
                 disabled={!!updatingId}
-                className="text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                className="text-surface-400 hover:text-surface-600 disabled:cursor-not-allowed motion-safe:transition-colors motion-safe:duration-100"
               >
-                <FiX className="w-6 h-6" />
+                <FiX className="w-5 h-5" />
               </button>
             </div>
 
             {successMessage && (
-              <div className="mx-6 mt-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                <FiCheck className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="mx-6 mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-3">
+                <FiCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-green-900">
+                  <p className="text-sm font-medium text-emerald-900">
                     {successMessage}
                   </p>
                 </div>
@@ -535,7 +532,7 @@ const CategoryListTable: React.FC = () => {
                   onClick={() =>
                     setErrors((prev) => ({ ...prev, submit: undefined }))
                   }
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 motion-safe:transition-colors"
                 >
                   <FiX className="w-4 h-4" />
                 </button>
@@ -546,7 +543,7 @@ const CategoryListTable: React.FC = () => {
               <div>
                 <label
                   htmlFor="edit-name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-surface-700 mb-1.5"
                 >
                   Category Name
                 </label>
@@ -557,8 +554,8 @@ const CategoryListTable: React.FC = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   disabled={!!updatingId}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed ${
-                    errors.name ? "border-red-300" : "border-gray-300"
+                  className={`w-full px-3.5 py-2.5 border rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400 disabled:cursor-not-allowed motion-safe:transition-shadow motion-safe:duration-150 ${
+                    errors.name ? "border-red-300" : "border-surface-300"
                   }`}
                   placeholder="e.g., Electronics, Clothing, Food"
                 />
@@ -573,7 +570,7 @@ const CategoryListTable: React.FC = () => {
               <div>
                 <label
                   htmlFor="edit-description"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-surface-700 mb-1.5"
                 >
                   Description
                 </label>
@@ -584,8 +581,8 @@ const CategoryListTable: React.FC = () => {
                   onChange={handleInputChange}
                   disabled={!!updatingId}
                   rows={4}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed ${
-                    errors.description ? "border-red-300" : "border-gray-300"
+                  className={`w-full px-3.5 py-2.5 border rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none disabled:bg-surface-50 disabled:text-surface-400 disabled:cursor-not-allowed motion-safe:transition-shadow motion-safe:duration-150 ${
+                    errors.description ? "border-red-300" : "border-surface-300"
                   }`}
                   placeholder="Describe this category..."
                 />
@@ -597,12 +594,12 @@ const CategoryListTable: React.FC = () => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-surface-700 mb-1.5">
                   Category Image
                 </label>
 
                 {imagePreview ? (
-                  <div className="relative w-full h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  <div className="relative w-full h-48 border-2 border-surface-300 rounded-lg overflow-hidden bg-surface-50">
                     <img
                       src={imagePreview}
                       alt="Category preview"
@@ -613,9 +610,9 @@ const CategoryListTable: React.FC = () => {
                         type="button"
                         onClick={handleRemoveImage}
                         disabled={pending}
-                        className="absolute top-2 right-2 p-1 bg-red-500  text-white rounded-full hover:bg-red-800 cursor-pointer duration-300 shadow-md transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-700 shadow-md motion-safe:transition-colors motion-safe:duration-150 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        <BiX color="white" className="w-5 h-5 text-gray-700" />
+                        <BiX className="w-4 h-4" />
                       </button>
                     )}
                   </div>
@@ -632,17 +629,17 @@ const CategoryListTable: React.FC = () => {
                     />
                     <label
                       htmlFor="edit-image-upload"
-                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer motion-safe:transition-colors motion-safe:duration-150 ${
                         errors.image
                           ? "border-red-300 bg-red-50"
-                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                          : "border-surface-300 bg-surface-50 hover:bg-surface-100"
                       } ${updatingId ? "cursor-not-allowed opacity-50" : ""}`}
                     >
-                      <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600">
+                      <FiUpload className="w-8 h-8 text-surface-400 mb-2" />
+                      <span className="text-sm text-surface-600">
                         Click to upload {formData.removeImage ? "new" : "image"}
                       </span>
-                      <span className="text-xs text-gray-500 mt-1">
+                      <span className="text-xs text-surface-400 mt-1">
                         PNG, JPG up to 5MB
                       </span>
                     </label>
@@ -658,12 +655,12 @@ const CategoryListTable: React.FC = () => {
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
+            <div className="px-6 py-4 border-t border-surface-200 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
               <button
                 type="button"
                 onClick={closeEditModal}
                 disabled={!!updatingId}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                className="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150"
               >
                 Cancel
               </button>
@@ -671,26 +668,11 @@ const CategoryListTable: React.FC = () => {
                 type="button"
                 onClick={handleUpdate} 
                 disabled={!!updatingId}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors min-w-[120px]"
+                className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150 min-w-[120px]"
               >
                 {updatingId ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Updating...
                   </span>
                 ) : (
@@ -703,24 +685,24 @@ const CategoryListTable: React.FC = () => {
       )}
 
       {showDeleteModal && categoryToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-label="Delete category" aria-describedby="delete-description">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full motion-safe:animate-scaleIn">
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                   <FiAlertCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-surface-900">
                     Delete Category
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-surface-500 mt-1">
                     This action cannot be undone
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-700 mb-6">
+              <p className="text-sm text-surface-700 mb-6" id="delete-description">
                 Are you sure you want to delete{" "}
                 <span className="font-semibold">"{categoryToDelete.name}"</span>
                 ?
@@ -728,9 +710,8 @@ const CategoryListTable: React.FC = () => {
                   categoryToDelete.numberOfProducts > 0 && (
                     <span className="text-red-600">
                       {" "}
-                      This category contains {
-                        categoryToDelete.numberOfProducts
-                      }{" "}
+                      This category contains{" "}
+                      {categoryToDelete.numberOfProducts}{" "}
                       product(s).
                     </span>
                   )}
@@ -741,7 +722,7 @@ const CategoryListTable: React.FC = () => {
                   type="button"
                   onClick={closeDeleteModal}
                   disabled={!!deletingId}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  className="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150"
                 >
                   Cancel
                 </button>
@@ -749,26 +730,11 @@ const CategoryListTable: React.FC = () => {
                   type="button"
                   onClick={handleDelete}
                   disabled={!!deletingId}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors min-w-[100px]"
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150 min-w-[100px]"
                 >
                   {deletingId ? (
                     <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Deleting...
                     </span>
                   ) : (
@@ -780,7 +746,7 @@ const CategoryListTable: React.FC = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

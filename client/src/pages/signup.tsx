@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { register } from "../utils/handlers";
 import { Navigate } from "react-router-dom";
+import SEO from "../components/SEO";
 
 import useAuth from "../context/auth/AuthContext";
 
@@ -56,6 +57,7 @@ function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <SEO title="Sign Up" description="Create your TechPad account." />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 left-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -76,7 +78,7 @@ function SignUpPage() {
             </p>
           </div>
 
-          <form onSubmit={handleRegister} className="w-full space-y-4">
+          <form aria-label="Sign up form" onSubmit={handleRegister} className="w-full space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">
                 First Name
@@ -87,6 +89,7 @@ function SignUpPage() {
                 </div>
                 <input
                   type="text"
+                  autoComplete="given-name"
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-purple-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="Enter your first name"
                   value={userRegister.firstName}
@@ -111,6 +114,7 @@ function SignUpPage() {
                 </div>
                 <input
                   type="text"
+                  autoComplete="family-name"
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-purple-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="Enter your last name"
                   value={userRegister.lastName}
@@ -135,6 +139,7 @@ function SignUpPage() {
                 </div>
                 <input
                   type="email"
+                  autoComplete="email"
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-purple-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="you@example.com"
                   value={userRegister.email}
@@ -156,6 +161,7 @@ function SignUpPage() {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   className="w-full pl-12 pr-12 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-purple-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="Create a strong password"
                   value={userRegister.password}
@@ -178,7 +184,7 @@ function SignUpPage() {
             </div>
 
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3 animate-shake">
+              <div role="alert" className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3 animate-shake">
                 <svg
                   className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
                   fill="currentColor"

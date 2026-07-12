@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Category from '../models/category';
 import Product from '../models/product';
-import { deleteFromS3, uploadToS3 } from '../utils/s3';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary';
 import { ExtendedRequest } from '../utils/types';
 
 
@@ -14,17 +14,14 @@ export const createCategory = async (req: ExtendedRequest, res: Response) => {
       return;
     }
 
-    // Check if category already exists
     const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
       res.status(400).json({ error: 'Category already exists' });
       return;
     }
 
-    // Upload image to S3
-    const imageUrl = await uploadToS3(req.file);
+    const imageUrl = await uploadToCloudinary(req.file, "categories");
 
-    // Create category
     const category = await Category.create({
       name,
       description,
@@ -98,7 +95,6 @@ export const updateCategory = async (req: ExtendedRequest, res: Response) => {
     const { id } = req.params;
     const { name, description, removeImage } = req.body;
 
-    
     const category = await Category.findById(id);
 
     if (!category) {
@@ -106,20 +102,17 @@ export const updateCategory = async (req: ExtendedRequest, res: Response) => {
       return;
     }
 
-
     if (name) category.name = name;
     if (description) category.description = description;
 
-
-    if (removeImage === 'true' && !req.file) { 
-      await deleteFromS3(category.image);
-      category.image = ''; 
+    if (removeImage === 'true' && !req.file) {
+      await deleteFromCloudinary(category.image);
+      category.image = '';
     }
-    
-    
+
     if (req.file) {
-      await deleteFromS3(category.image);
-      const imageUrl = await uploadToS3(req.file);
+      await deleteFromCloudinary(category.image);
+      const imageUrl = await uploadToCloudinary(req.file, "categories");
       category.image = imageUrl;
     }
 
@@ -145,7 +138,6 @@ export const deleteCategory = async (req: ExtendedRequest, res: Response) => {
       return;
     }
 
-    // Check if category has products
     const productCount = await Product.countDocuments({ categoryId: id });
     if (productCount > 0) {
       res.status(400).json({
@@ -154,10 +146,8 @@ export const deleteCategory = async (req: ExtendedRequest, res: Response) => {
       return;
     }
 
-    // Delete image from S3
-    await deleteFromS3(category.image);
+    await deleteFromCloudinary(category.image);
 
-    // Delete category
     await category.deleteOne();
 
     res.status(200).json({

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 import {
   AddAndUpdateItemsToCartParamsType,
@@ -7,8 +7,9 @@ import {
 } from "../../utils/types";
 
 import { FC, PropsWithChildren } from "react";
-import { IProductItem } from "../../utils/types";
+import { IAddress, IProductItem } from "../../utils/types";
 import { CartContext } from "./CartContext";
+import useAuth from "../auth/AuthContext";
 
 import toast from "react-hot-toast";
 
@@ -24,6 +25,8 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
   const totalCartItems = useMemo(() => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
+
+  const { token } = useAuth();
 
   const getUserCart = async ({ token }: ClearCartParamsType) => {
     try {
@@ -69,6 +72,12 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
       setPending(false);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      getUserCart({ token });
+    }
+  }, [token]);
 
   const addItemToCart = async ({
     productId,
@@ -270,14 +279,14 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
     address,
   }: {
     token: string;
-    address: string;
+    address: IAddress;
   }) => {
     try {
       if (!token) {
         throw new Error("Unauthorized: No valid token provided");
       }
 
-      if (!address || address.trim() === "") {
+      if (!address?.street?.trim()) {
         throw new Error("Delivery address is required");
       }
 

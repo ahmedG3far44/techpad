@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CgShoppingCart } from "react-icons/cg";
 import { handlePrice } from "../utils/handlers";
 import { BsArrowRight, BsTrash2 } from "react-icons/bs";
+import SEO from "../components/SEO";
 
 import useCart from "../context/cart/CartContext";
 import useAuth from "../context/auth/AuthContext";
@@ -29,6 +30,7 @@ function CartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <SEO title="Shopping Cart" description="Review your items and proceed to checkout." />
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -46,7 +48,7 @@ function CartPage() {
 
         {cartItems.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-4">
+            <div aria-live="polite" className="lg:col-span-2 space-y-4">
               {cartItems.map(({ product, productId, quantity, updatedAt }) => (
                 <ItemCart
                   key={productId}
@@ -64,7 +66,7 @@ function CartPage() {
               ))}
             </div>
 
-            <div className="lg:col-span-1">
+            <div aria-label="Cart summary" className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">
                   Order Summary
@@ -133,7 +135,7 @@ function CartPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-2xl mx-auto">
+          <div role="status" className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-2xl mx-auto">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
               <CgShoppingCart className="w-10 h-10 text-gray-400" />
             </div>

@@ -2,13 +2,14 @@ import { ReactNode } from "react";
 
 interface ContainerProps {
   children: ReactNode;
+  className?: string;
 }
 
-function Container({ children }: ContainerProps) {
+function Container({ children, className = "" }: ContainerProps) {
   return (
-    <div className="w-full md:w-3/4 lg:w-3/4 flex flex-col gap-8 p-4  m-auto ">
+    <main id="main-content" className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
       {children}
-    </div>
+    </main>
   );
 }
 

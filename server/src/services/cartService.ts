@@ -291,14 +291,29 @@ export const checkout = async ({ userId, shipInfo }: CheckoutCartParams) => {
       return { data: "User not found!", statusCode: 404 };
     }
 
+    const addr = shipInfo?.address;
+    const addressStr = addr
+      ? [
+          addr.building && `Building ${addr.building}`,
+          addr.floor && `Floor ${addr.floor}`,
+          addr.apartment && `Apt ${addr.apartment}`,
+          addr.street,
+          addr.area,
+          addr.state,
+          addr.country,
+        ]
+          .filter(Boolean)
+          .join(", ")
+      : "";
+
     const order = await orderModel.create({
       orderItems,
       customer: {
         name: `${customer.firstName} ${customer.lastName}`,
         email: customer.email,
-        address: shipInfo?.address,
-        area: `${shipInfo?.state} | ${shipInfo?.country}`,
-        phone: shipInfo?.phone,
+        address: addressStr,
+        area: addr ? `${addr.area}, ${addr.state}` : "",
+        phone: addr?.phone || "",
       },
       userId,
       totalOrderPrice: cart.totalAmount,

@@ -1,3 +1,4 @@
+import SEO from "../../components/SEO";
 import Charts from "./Charts";
 import StatusOrders from "./StatusOrders";
 import SalesInsights from "./SalesInsights";
@@ -9,32 +10,30 @@ export interface SalesInsightsType {
   mostSpent: number;
   activeCustomers: number;
 }
+
 function Insights() {
   return (
-    <div className="min-w-full min-h-full">
-      <div className="w-full  p-4 flex justify-between items-center">
-        <h1 className="font-black text-4xl text-zinc-900">
+    <div className="w-full">
+      <SEO title="Insights" description="View sales and performance insights." />
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
           Dashboard Insights
         </h1>
-        <select
-          className="p-2 w-[200px] rounded-md border border-zinc-100 bg-white"
-          name=""
-          id=""
-        >
-          <option value="">today</option>
-          <option value="">yesterday</option>
-          <option value="">month ago</option>
-          <option value="">year ago </option>
+        <select className="px-3 py-2 rounded-lg border border-surface-300 bg-white text-sm text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+          <option value="day">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
         </select>
       </div>
 
       <SalesInsights />
       <StatusOrders />
-      <div className="p-4 w-full grid grid-cols-2 grid-flow-row  gap-4 max-md:grid-cols-1 max-sm:grid-cols-1">
-        <div className="p-4  border  border-zinc-200 bg-white rounded-xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="p-4 sm:p-6 border border-surface-200 bg-white rounded-xl">
           <Charts />
         </div>
-        <div className="p-4  border  border-zinc-200 bg-white rounded-xl">
+        <div className="p-4 sm:p-6 border border-surface-200 bg-white rounded-xl">
           <TopRatedCustomers />
         </div>
       </div>

@@ -4,6 +4,7 @@ import { FiAlertCircle, FiFilter } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import { BiChevronDown, BiPackage, BiX } from "react-icons/bi";
 import { getAllProducts } from "../utils/handlers";
+import SEO from "../components/SEO";
 
 import Header from "../components/landing/Header";
 import ProductCard from "../components/ProductCard";
@@ -83,6 +84,8 @@ function FilterSidebar({
         />
       )}
       <aside
+        role="region"
+        aria-label="Product filters"
         className={`
         lg:block bg-white rounded-2xl border-2 border-zinc-200 p-6 space-y-6 h-fit lg:sticky lg:top-4 shadow-lg
         ${
@@ -332,6 +335,7 @@ function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <SEO title={categoryName ? `${categoryName} Products` : "Categories"} description={`Browse ${categoryName || "all"} products.`} />
       <Header />
       <header className=" border-b-2 border-zinc-200 sticky top-0 z-40 shadow-md backdrop-blur-lg bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -414,7 +418,7 @@ function CategoryPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div role="list" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredProducts.map((product) => (
                       <ProductCard key={product._id} {...product} />
                     ))}

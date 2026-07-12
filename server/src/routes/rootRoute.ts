@@ -4,7 +4,8 @@ import productRoute from "./productRoute";
 import cartRoute from "./cartRoute";
 import adminRoute from "./adminRoute";
 import uploadRoute from "./uploadRoute";
-import categoryRoute from "./categoryRoute"
+import categoryRoute from "./categoryRoute";
+import storeSettingsRoute from "./storeSettingsRoute";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/", cartRoute);
 router.use("/upload", uploadRoute);
 router.use("/admin", adminRoute);
 router.use("/", categoryRoute);
+router.use("/", storeSettingsRoute);
 
 export default router;

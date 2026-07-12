@@ -2,6 +2,7 @@ import { useState } from "react";
 import { login } from "../utils/handlers";
 import { Navigate } from "react-router-dom";
 import { loginUserParams } from "../utils/types";
+import SEO from "../components/SEO";
 
 import useAuth from "../context/auth/AuthContext";
 
@@ -45,6 +46,7 @@ function LoginPage() {
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <SEO title="Login" description="Sign in to your TechPad account." />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute top-40 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
@@ -105,7 +107,7 @@ function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="w-full space-y-5">
+          <form aria-label="Login form" onSubmit={handleLogin} className="w-full space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">
                 Email Address
@@ -116,6 +118,7 @@ function LoginPage() {
                 </div>
                 <input
                   type="email"
+                  autoComplete="email"
                   className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="you@example.com"
                   value={userLogin.email}
@@ -136,6 +139,7 @@ function LoginPage() {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   className="w-full pl-12 pr-12 py-3.5 bg-gray-50 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-600 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
                   placeholder="Enter your password"
                   value={userLogin.password}
@@ -154,7 +158,7 @@ function LoginPage() {
               </div>
             </div>
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3 animate-shake">
+              <div role="alert" className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3 animate-shake">
                 <svg
                   className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
                   fill="currentColor"

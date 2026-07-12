@@ -27,8 +27,6 @@ export const login = async ({ email, password }: loginUserParams) => {
     }
     const { user, token } = data;
 
-
-
     return { user, token };
   } catch (err) {
     console.error(err);
@@ -170,9 +168,29 @@ export const createOrder = async ({
 };
 
 
-export function handlePrice(price:number|string){
-  return `${price.toLocaleString("en-US", {
+let _storeSettings = {
+  currencySymbol: "$" as string,
+  exchangeRate: 1 as number,
+  currencyCode: "USD" as string,
+};
+
+export function initPriceFormatter(settings: typeof _storeSettings) {
+  _storeSettings = settings;
+}
+
+export function getStoreSettings() {
+  return { ..._storeSettings };
+}
+
+export function formatStorePrice(price: number | string) {
+  const num = typeof price === "string" ? parseFloat(price) : price;
+  const converted = num * _storeSettings.exchangeRate;
+  return `${_storeSettings.currencySymbol}${converted.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} USD`
+  })}`;
+}
+
+export function handlePrice(price: number | string) {
+  return formatStorePrice(price);
 }

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { LuTimer } from "react-icons/lu";
-import { FcShipped } from "react-icons/fc";
 import { HiOutlineCash } from "react-icons/hi";
 import { HiOutlineTruck } from "react-icons/hi2";
+import { MdDoneAll } from "react-icons/md";
 import { InsightsCardSkeleton } from "./SalesInsights";
 
 import InsightsCard from "./InsightsCard";
@@ -13,7 +13,6 @@ const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
 function StatusOrders() {
   const [pending, setPending] = useState(false);
-
   const [statusOrders, setOrderStatus] = useState({
     pending: 0,
     shipped: 0,
@@ -33,7 +32,6 @@ function StatusOrders() {
           },
         });
         if (!response.ok) throw new Error("can't get admin orders insights");
-
         const data = await response.json();
         setOrderStatus({ ...data });
         return;
@@ -50,51 +48,50 @@ function StatusOrders() {
     {
       id: "0",
       name: "Pending Orders",
-      icon: <LuTimer color="gray" size={25} />,
+      icon: <LuTimer color="#f59e0b" size={22} />,
       money: statusOrders.pending,
       prefix: statusOrders.pending <= 1 ? "order" : "orders",
     },
     {
       id: "1",
       name: "Shipped Orders",
-      icon: <HiOutlineTruck color="gray" size={25} />,
+      icon: <HiOutlineTruck color="#2563eb" size={22} />,
       money: statusOrders.shipped,
       prefix: statusOrders.shipped <= 1 ? "order" : "orders",
     },
     {
       id: "2",
       name: "Delivered Orders",
-      icon: <FcShipped color="green" size={25} />,
+      icon: <MdDoneAll color="#059669" size={22} />,
       money: statusOrders.delivered,
       prefix: statusOrders.delivered <= 1 ? "order" : "orders",
     },
     {
       id: "3",
       name: "Total Orders",
-      icon: <HiOutlineCash color="green" size={25} />,
+      icon: <HiOutlineCash color="#64748b" size={22} />,
       money: statusOrders.totalOrders,
       prefix: statusOrders.totalOrders <= 1 ? "order" : "orders",
     },
   ];
+
   return (
-    <div className="p-4 w-full flex justify-between gap-1 items-center flex-wrap max-sm:flex-wrap max-md:flex-wrap max-sm:justify-center max-md:justify-center">
-      {ordersInfo.map((card) => {
-        return (
-          <div key={card.id}>
-            {pending ? (
-              <InsightsCardSkeleton />
-            ) : (
-              <InsightsCard
-                name={card.name}
-                icon={<span>{card.icon}</span>}
-                money={card.money}
-                info={`The number of ${card.name}`}
-                prefix={card.prefix}
-              />
-            )}
-          </div>
-        );
-      })}
+    <div className="flex flex-wrap gap-4 mb-6">
+      {ordersInfo.map((card) => (
+        <div key={card.id} className="flex-1 min-w-[200px]">
+          {pending ? (
+            <InsightsCardSkeleton />
+          ) : (
+            <InsightsCard
+              name={card.name}
+              icon={card.icon}
+              money={card.money}
+              info={`The number of ${card.name}`}
+              prefix={card.prefix}
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

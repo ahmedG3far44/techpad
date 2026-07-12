@@ -1,9 +1,7 @@
 import { productSchema } from "../utils/validationSchema";
-import product from "../models/product";
 import productModel from "../models/product";
-import categoryModel from "../models/category"; 
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import s3Client from "../configs/s3Client";
+import categoryModel from "../models/category";
+import { deleteFromCloudinary } from "../utils/cloudinary";
 
 export const getAllProducts = async () => {
   try {
@@ -15,7 +13,7 @@ export const getAllProducts = async () => {
 };
 
 interface AddProductParams {
-  productData: string;
+  productData: any;
 }
 
 export const addNewProduct = async ({ productData }: AddProductParams) => {
@@ -89,46 +87,40 @@ export const updateNewProduct = async ({
       categoryName = category.name;
     }
 
-   
     const updatedProduct = await productModel.findByIdAndUpdate(
       productId,
       {
         ...validProductData.data,
         categoryName,
-        totalSales: existProduct.totalSales, 
-        ordersCount: existProduct.ordersCount, 
+        totalSales: existProduct.totalSales,
+        ordersCount: existProduct.ordersCount,
       },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedProduct) {
       return { data: "can't update product info", statusCode: 400 };
     }
 
-    // Note: findByIdAndUpdate returns the updated doc, no need to save again
-    return { data: updatedProduct, statusCode: 200 }; // Changed from 203 to 200
+    return { data: updatedProduct, statusCode: 200 };
   } catch (err) {
     return { data: "can't update product info", statusCode: 400 };
   }
 };
 
-
-interface GetProductByCategoryNameParams{
-  categoryName:string;
+interface GetProductByCategoryNameParams {
+  categoryName: string;
 }
-export const getProductsByCategoryName = async({ categoryName }: GetProductByCategoryNameParams)=> {
-  try{
-    const products = await productModel.find({
-      categoryName
-    })
-    if(!products) throw new Error("no products found !!")
+export const getProductsByCategoryName = async ({ categoryName }: GetProductByCategoryNameParams) => {
+  try {
+    const products = await productModel.find({ categoryName });
+    if (!products) throw new Error("no products found !!");
 
-      return {data:products, statusCode:200}
-    }catch(error){
-    return {data:`Error: ${(error as Error).message }`, statusCode:400}
-
+    return { data: products, statusCode: 200 };
+  } catch (error) {
+    return { data: `Error: ${(error as Error).message}`, statusCode: 400 };
   }
-}
+};
 
 interface GetProductByIdParams {
   productId: string;
@@ -136,9 +128,9 @@ interface GetProductByIdParams {
 
 export const getProductById = async ({ productId }: GetProductByIdParams) => {
   try {
-    const productDetails = await productModel.findById(productId); 
+    const productDetails = await productModel.findById(productId);
     if (!productDetails) {
-      return { data: "The product doesn't found!!", statusCode: 404 }; 
+      return { data: "The product doesn't found!!", statusCode: 404 };
     }
     return { data: productDetails, statusCode: 200 };
   } catch (err) {
@@ -148,29 +140,18 @@ export const getProductById = async ({ productId }: GetProductByIdParams) => {
 
 export const deleteProductById = async ({ productId }: GetProductByIdParams) => {
   try {
-    const product = await productModel.findById(productId); 
+    const product = await productModel.findById(productId);
     if (!product) {
-      return { 
-        data: "failed to delete, this product doesn't exist!!", 
-        statusCode: 404 
+      return {
+        data: "failed to delete, this product doesn't exist!!",
+        statusCode: 404
       };
     }
-    for (const img of product?.images as string[]){
-      const deletedKey = img.split(".com/")[1].trim();
 
-      const command = new DeleteObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET,
-        Key: deletedKey
-      });
-    
-
-      await s3Client.send(command).then(()=>{
-
-      }).catch((error)=> {
-        return { data: "can't delete product by Id", statusCode: 400 };
-      })
+    for (const img of product?.images as string[]) {
+      await deleteFromCloudinary(img);
     }
-    
+
     await productModel.findByIdAndDelete(productId);
 
     await categoryModel.findByIdAndUpdate(
@@ -180,10 +161,8 @@ export const deleteProductById = async ({ productId }: GetProductByIdParams) => 
       },
       { new: true }
     );
-    return { data: product, statusCode: 200, message:"product deleted success!!" };
+    return { data: product, statusCode: 200, message: "product deleted success!!" };
   } catch (err) {
     return { data: "can't delete product by Id", statusCode: 400 };
   }
 };
-
-

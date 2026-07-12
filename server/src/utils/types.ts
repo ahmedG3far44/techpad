@@ -43,16 +43,25 @@ export interface CheckoutCartParams {
   userId: string;
   shipInfo: ShipInfo;
 }
-export interface ShipInfo {
-  address: string;
-  country?: string;
-  state?: string;
+export interface IAddress {
+  label: "Home" | "Office" | "Other";
+  isDefault: boolean;
+  street: string;
+  building: string;
+  floor: string;
+  apartment: string;
+  area: string;
+  state: string;
+  country: string;
   phone?: string;
+}
+export interface ShipInfo {
+  address: IAddress;
 }
 export interface Customer {
   name: string;
   email?: string;
-  address:string;
+  address: string;
   area?: string;
   phone?: string;
 }

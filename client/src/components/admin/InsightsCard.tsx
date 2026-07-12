@@ -14,21 +14,20 @@ function InsightsCard({
   prefix?: string;
 }) {
   return (
-    <div
-      className={
-        "min-w-[350px] p-4 border border-zinc-50 rounded-md flex flex-col justify-center items-start gap-2 bg-white"
-      }
-    >
+    <div className="min-w-[260px] flex-1 p-5 border border-surface-200 rounded-xl flex flex-col gap-2 bg-white motion-safe:transition-all motion-safe:duration-150 hover:border-primary-200 hover:shadow-sm">
       <div className="w-full flex justify-between items-center">
-        <h1 className=" text-2xl ">{name}</h1> <span>{icon}</span>
+        <h1 className="text-sm font-semibold text-surface-600 uppercase tracking-wide">{name}</h1>
+        <span className="text-surface-400">{icon}</span>
       </div>
-      <div className="flex items-end gap-2">
-        <span className="text-3xl font-black text-zinc-900">
-          {money.toLocaleString() === "0" ? "NA" : money.toLocaleString()}
+      <div className="flex items-end gap-1.5">
+        <span className="text-3xl font-bold text-surface-900">
+          {money.toLocaleString() === "0" ? "N/A" : money.toLocaleString()}
         </span>
-        <span className="text-sm font-mono text-zinc-500">{prefix}</span>
+        {prefix && (
+          <span className="text-sm font-medium text-surface-400 mb-0.5">{prefix}</span>
+        )}
       </div>
-      <p className="text-sm  font-medium text-zinc-500">{info}</p>
+      {info && <p className="text-xs text-surface-400">{info}</p>}
     </div>
   );
 }

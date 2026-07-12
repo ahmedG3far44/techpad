@@ -18,7 +18,8 @@ function UploadedImages({
             return (
               <div
                 key={index}
-                className="w-20 h-20 shadow-md  rounded-3xl my-8 relative border-2 border-zinc-300 p-1"
+                className="w-20 h-20 shadow-sm rounded-xl my-8 relative border border-surface-200 p-1 motion-safe:animate-scaleIn motion-safe:[animation-fill-mode:backwards]"
+                style={{ animationDelay: `${index * 40}ms` }}
               >
                 {!uploadStatus && (
                   <button
@@ -27,15 +28,16 @@ function UploadedImages({
                         removeFiles(img);
                       }
                     }}
-                    className="p-2 cursor-pointer hover:bg-red-800 duration-300 bg-red-600 text-white shadow-2xl rounded-2xl absolute  -top-2 -right-2 z-50"
+                    className="p-1.5 cursor-pointer hover:bg-red-700 motion-safe:duration-150 bg-red-500 text-white shadow-md rounded-lg absolute -top-2 -right-2 z-50 motion-safe:transition-colors motion-safe:duration-150"
+                    aria-label={`Remove image ${index + 1}`}
                   >
-                    <LuX size={20} />
+                    <LuX size={14} />
                   </button>
                 )}
                 <img
-                  className="w-full h-full rounded-3xl object-cover "
+                  className="w-full h-full rounded-lg object-cover"
                   src={url}
-                  alt=""
+                  alt={`Upload preview ${index + 1}`}
                 />
               </div>
             );

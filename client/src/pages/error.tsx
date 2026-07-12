@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
 
 function NotFoundPage() {
   const navigate = useNavigate();
   return (
     <div className="w-full min-h-screen flex justify-center items-center ">
-      <div className="w-[600px] p-4 border border-zinc-300 flex flex-col justify-center items-center gap-4 rounded-md">
+      <SEO title="Page Not Found" description="The page you are looking for does not exist." />
+      <div role="alert" className="w-[600px] p-4 border border-zinc-300 flex flex-col justify-center items-center gap-4 rounded-md">
         <h1 className="text-8xl font-black text-blue-500">404</h1>
         <h2 className="text-2xl">This page not found</h2>
         <p className="text-gray-400 text-sm text-center">

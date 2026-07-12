@@ -1,4 +1,3 @@
-import Container from "./Container";
 import Header from "./landing/Header";
 import useAuth from "../context/auth/AuthContext";
 
@@ -8,10 +7,12 @@ function ProtectedRoutes() {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to={"/login"} replace></Navigate>;
   return (
-    <Container>
+    <>
       <Header />
-      <Outlet />
-    </Container>
+      <main id="main-content" className="w-full">
+        <Outlet />
+      </main>
+    </>
   );
 }
 

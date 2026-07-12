@@ -1,9 +1,8 @@
-import { addNewProduct } from "./productService";
-import user from "../models/user";
+import userModel from "../models/user";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import orderModel from "../models/order";
-import userModel from "../models/user";
+import { IAddress } from "../utils/types";
 
 interface RegisterParams {
   firstName: string;
@@ -18,7 +17,7 @@ export const register = async ({
   email,
   password,
 }: RegisterParams) => {
-  const findUser = await user.findOne({ email });
+  const findUser = await userModel.findOne({ email });
 
   if (findUser) {
     return { data: "user is already exist!!", statusCode: 400 };
@@ -26,14 +25,12 @@ export const register = async ({
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = await user.insertOne({
+  const newUser = await userModel.create({
     firstName,
     lastName,
     email,
     password: hashedPassword,
   });
-
-  await newUser.save();
 
   const userPayload = {
     id: newUser.id,
@@ -45,7 +42,15 @@ export const register = async ({
   const token = generateToken(userPayload);
 
   return {
-    data: { user: { ...userPayload, addresses: newUser.addresses }, token },
+    data: {
+      user: {
+        ...userPayload,
+        phone: newUser.phone,
+        profileImage: newUser.profileImage,
+        addresses: newUser.addresses,
+      },
+      token,
+    },
     statusCode: 201,
   };
 };
@@ -55,7 +60,7 @@ interface LoginParams {
   password: string;
 }
 export const login = async ({ email, password }: LoginParams) => {
-  const findUser = await user.findOne({ email });
+  const findUser = await userModel.findOne({ email });
 
   if (!findUser) {
     return { data: "this user not found!!", statusCode: 400 };
@@ -66,7 +71,8 @@ export const login = async ({ email, password }: LoginParams) => {
   if (!correctPasswords) {
     return { data: "your email or password is wrong!!", statusCode: 400 };
   }
-  const { id, firstName, lastName, isAdmin, addresses } = findUser;
+  const { id, firstName, lastName, isAdmin, addresses, phone, profileImage } =
+    findUser;
 
   const userPayload = {
     id,
@@ -78,9 +84,84 @@ export const login = async ({ email, password }: LoginParams) => {
 
   const token = generateToken(userPayload);
   return {
-    data: { user: { ...userPayload, addresses }, token },
+    data: {
+      user: { ...userPayload, phone, profileImage, addresses },
+      token,
+    },
     statusCode: 200,
   };
+};
+
+interface GetUserProfileParams {
+  userId: string;
+}
+export const getUserProfile = async ({ userId }: GetUserProfileParams) => {
+  try {
+    const user = await userModel.findById(userId).select("-password");
+    if (!user) {
+      return { data: "User not found", statusCode: 404 };
+    }
+    return {
+      data: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        isAdmin: user.isAdmin,
+        addresses: user.addresses,
+      },
+      statusCode: 200,
+    };
+  } catch (err: any) {
+    return { data: err?.message, statusCode: 400 };
+  }
+};
+
+interface UpdateUserProfileParams {
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  profileImage?: string;
+}
+export const updateUserProfile = async ({
+  userId,
+  firstName,
+  lastName,
+  phone,
+  profileImage,
+}: UpdateUserProfileParams) => {
+  try {
+    const updateData: Record<string, any> = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (profileImage !== undefined) updateData.profileImage = profileImage;
+
+    const user = await userModel
+      .findByIdAndUpdate(userId, updateData, { new: true })
+      .select("-password");
+    if (!user) {
+      return { data: "User not found", statusCode: 404 };
+    }
+    return {
+      data: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        isAdmin: user.isAdmin,
+        addresses: user.addresses,
+      },
+      statusCode: 200,
+    };
+  } catch (err: any) {
+    return { data: err?.message, statusCode: 400 };
+  }
 };
 
 interface GetUserOrdersParams {
@@ -95,22 +176,111 @@ export const getUserOrders = async ({ userId }: GetUserOrdersParams) => {
   }
 };
 
-interface addUserAddressParams {
+interface AddUserAddressParams {
   userId: string;
-  address: string;
+  address: IAddress;
 }
 export const addUserAddress = async ({
   userId,
   address,
-}: addUserAddressParams) => {
+}: AddUserAddressParams) => {
   try {
     const user = await userModel.findById(userId);
-    user?.addresses.push(address);
-    await user?.save();
-    if (!user?.addresses) {
-      return { data: "addresses list not found", statusCode: 400 };
+    if (!user) return { data: "User not found", statusCode: 404 };
+
+    if (address.isDefault) {
+      user.addresses.forEach((a) => (a.isDefault = false));
     }
-    return { data: user, statusCode: 200 };
+
+    if (user.addresses.length === 0) {
+      address.isDefault = true;
+    }
+
+    user.addresses.push(address);
+    await user.save();
+    return { data: user.addresses, statusCode: 200 };
+  } catch (err: any) {
+    return { data: err?.message, statusCode: 400 };
+  }
+};
+
+interface UpdateUserAddressParams {
+  userId: string;
+  addressIndex: number;
+  address: IAddress;
+}
+export const updateUserAddress = async ({
+  userId,
+  addressIndex,
+  address,
+}: UpdateUserAddressParams) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) return { data: "User not found", statusCode: 404 };
+    if (addressIndex < 0 || addressIndex >= user.addresses.length) {
+      return { data: "Address not found", statusCode: 404 };
+    }
+
+    if (address.isDefault) {
+      user.addresses.forEach((a) => (a.isDefault = false));
+    }
+
+    user.addresses[addressIndex] = address;
+    await user.save();
+    return { data: user.addresses, statusCode: 200 };
+  } catch (err: any) {
+    return { data: err?.message, statusCode: 400 };
+  }
+};
+
+interface SetDefaultAddressParams {
+  userId: string;
+  addressIndex: number;
+}
+export const setDefaultAddress = async ({
+  userId,
+  addressIndex,
+}: SetDefaultAddressParams) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) return { data: "User not found", statusCode: 404 };
+    if (addressIndex < 0 || addressIndex >= user.addresses.length) {
+      return { data: "Address not found", statusCode: 404 };
+    }
+
+    user.addresses.forEach((a) => (a.isDefault = false));
+    user.addresses[addressIndex].isDefault = true;
+    await user.save();
+    return { data: user.addresses, statusCode: 200 };
+  } catch (err: any) {
+    return { data: err?.message, statusCode: 400 };
+  }
+};
+
+interface DeleteUserAddressParams {
+  userId: string;
+  addressIndex: number;
+}
+export const deleteUserAddress = async ({
+  userId,
+  addressIndex,
+}: DeleteUserAddressParams) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) return { data: "User not found", statusCode: 404 };
+    if (addressIndex < 0 || addressIndex >= user.addresses.length) {
+      return { data: "Address not found", statusCode: 404 };
+    }
+
+    const wasDefault = user.addresses[addressIndex].isDefault;
+    user.addresses.splice(addressIndex, 1);
+
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+
+    await user.save();
+    return { data: user.addresses, statusCode: 200 };
   } catch (err: any) {
     return { data: err?.message, statusCode: 400 };
   }
@@ -125,39 +295,40 @@ export const getUserAddressesList = async ({
   try {
     const user = await userModel.findById(userId);
     const addresses = user?.addresses;
-
     return { data: addresses, statusCode: 200 };
   } catch (err: any) {
     return { data: err?.message, statusCode: 400 };
   }
 };
+
 interface UpdateUserStatusPramsType {
   userId: string;
-  newStatus:"active" | "blocked"
+  newStatus: "active" | "blocked";
 }
 export const updateUserStatus = async ({
   userId,
-  newStatus
+  newStatus,
 }: UpdateUserStatusPramsType) => {
   try {
-    const user = await userModel.findByIdAndUpdate(userId, {
-      status: newStatus,
-    });
-    await user?.save()
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { status: newStatus },
+      { new: true }
+    );
     return { data: user, statusCode: 200 };
   } catch (err: any) {
     return { data: err?.message, statusCode: 400 };
   }
 };
+
 interface DeleteUserStatusPramsType {
   userId: string;
 }
 export const deleteUserStatus = async ({
-  userId
+  userId,
 }: DeleteUserStatusPramsType) => {
   try {
     const user = await userModel.findByIdAndDelete(userId);
-    await user?.save()
     return { data: user, statusCode: 200 };
   } catch (err: any) {
     return { data: err?.message, statusCode: 400 };

@@ -3,13 +3,13 @@ export interface IProduct {
   title: string;
   description: string | null;
   categoryName: string;
-  catergoryId:string;
+  catergoryId: string;
   images: string[] | [];
   thumbnail?: string;
   price: number;
   stock: number;
   createdAt?: Date;
-  updatedAt?:Date;
+  updatedAt?: Date;
 }
 
 export interface IProductItem {
@@ -25,12 +25,55 @@ export interface ICart {
   userId: string;
 }
 
+export interface IAddress {
+  label: "Home" | "Office" | "Other";
+  isDefault: boolean;
+  street: string;
+  building: string;
+  floor: string;
+  apartment: string;
+  area: string;
+  state: string;
+  country: string;
+  phone?: string;
+}
+
+export function emptyAddress(): IAddress {
+  return {
+    label: "Home",
+    isDefault: false,
+    street: "",
+    building: "",
+    floor: "",
+    apartment: "",
+    area: "",
+    state: "",
+    country: "Egypt",
+  };
+}
+
+export function formatAddress(a: IAddress): string {
+  const parts = [
+    a.building && `Building ${a.building}`,
+    a.floor && `Floor ${a.floor}`,
+    a.apartment && `Apt ${a.apartment}`,
+    a.street,
+    a.area,
+    a.state,
+    a.country,
+  ].filter(Boolean);
+  return parts.join(", ");
+}
+
 export interface User {
+  id?: string;
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
+  profileImage?: string;
   isAdmin: boolean;
-  addresses?: string[];
+  addresses?: IAddress[];
 }
 
 export interface AddAndUpdateItemsToCartParamsType {
@@ -48,8 +91,8 @@ export interface ClearCartParamsType {
 export interface CartContextType {
   cartItems: IProductItem[];
   totalAmount: number;
-  totalCartItems:number;
-  shippingCost:number;
+  totalCartItems: number;
+  shippingCost: number;
   addItemToCart: ({
     productId,
     quantity,
@@ -66,10 +109,9 @@ export interface CartContextType {
   }: DeleteItemCartParamsType) => void;
   clearAllItemsFromCart: ({ token }: ClearCartParamsType) => void;
   getUserCart: ({ token }: ClearCartParamsType) => void;
-  createOrder: ({ token, address }: { token: string; address: string }) => void;
-  pending:boolean;
-  error: string | null
-
+  createOrder: ({ token, address }: { token: string; address: IAddress }) => void;
+  pending: boolean;
+  error: string | null;
 }
 
 export interface RegisterUserParams {
@@ -90,7 +132,7 @@ export interface OnlyTokenParams {
 
 export interface TokenWithAddressParams {
   token: string;
-  address: string;
+  address: IAddress;
 }
 
 export interface OrderList {

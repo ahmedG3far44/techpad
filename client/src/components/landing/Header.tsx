@@ -15,7 +15,7 @@ function Header() {
   const navigate = useNavigate();
   const { categories } = useCategory();
   const { isAuthenticated } = useAuth();
-  const { cartItems, totalCartItems } = useCart();
+  const { cartItems } = useCart();
   const [isScrolled, setScroll] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,7 +29,6 @@ function Header() {
     const handleScroll = () => {
       setScroll(window.scrollY >= 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -50,25 +49,28 @@ function Header() {
       setSearchQuery("");
     }
   };
+
   return (
     <>
       <header
-        className={`${
-          isScrolled ? "bg-white" : "bg-white blur-1"
-        } sticky top-0 z-50 border-b border-gray-200 transition-all duration-300`}
+        role="banner"
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-surface-200"
+            : "bg-white border-b border-transparent"
+        }`}
       >
-        <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto sm:py-2 lg:py-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center space-x-8 flex-1">
+            <div className="flex items-center gap-8 flex-1">
               <Logo />
-
               <Navigation categories={categories} />
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setSearchOpen(!isSearchOpen)}
-                className="hidden md:flex items-center justify-center w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all"
+                className="hidden md:flex items-center justify-center w-10 h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                 aria-label="Search"
               >
                 <svg
@@ -86,27 +88,17 @@ function Header() {
                 </svg>
               </button>
 
-              {isAuthenticated && (
-                <ShoppingCart itemsCartNumber={totalItems as number} />
-              )}
+              {isAuthenticated && <ShoppingCart itemsCartNumber={totalItems} />}
 
               <div className="hidden md:flex items-center">
                 {isAuthenticated ? (
                   <User />
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="secondary"
-                      to="/login"
-                      className="text-sm px-4 py-2"
-                    >
+                    <Button variant="ghost" size="sm" to="/login">
                       Login
                     </Button>
-                    <Button
-                      variant="primary"
-                      to="/signup"
-                      className="text-sm px-4 py-2"
-                    >
+                    <Button variant="primary" size="sm" to="/signup">
                       Sign Up
                     </Button>
                   </div>
@@ -115,8 +107,10 @@ function Header() {
 
               <button
                 onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden flex items-center justify-center w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all"
+                className="lg:hidden flex items-center justify-center w-10 h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                 aria-label="Menu"
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-menu"
               >
                 {isMobileMenuOpen ? (
                   <svg
@@ -162,11 +156,11 @@ function Header() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-surface-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm bg-surface-50"
                   autoFocus
                 />
                 <svg
-                  className="absolute left-4 top-3.5 text-gray-400 w-5 h-5"
+                  className="absolute left-4 top-3.5 text-surface-400 w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -182,7 +176,7 @@ function Header() {
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-3.5 text-surface-400 hover:text-surface-600"
                   >
                     <svg
                       className="w-5 h-5"
@@ -207,22 +201,25 @@ function Header() {
 
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-80 max-w-full bg-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        id="mobile-menu"
+        role="dialog"
+        aria-label="Mobile menu"
+        aria-modal="true"
+        className={`fixed top-0 right-0 h-full w-80 max-w-full bg-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+          <div className="flex items-center justify-between p-4 border-b border-surface-200">
+            <h2 className="text-lg font-semibold text-surface-900">Menu</h2>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all"
+              className="flex items-center justify-center w-10 h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+              aria-label="Close menu"
             >
               <svg
                 className="w-6 h-6"
@@ -240,17 +237,17 @@ function Header() {
             </button>
           </div>
 
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-surface-200">
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-surface-50"
               />
               <svg
-                className="absolute left-3 top-3 text-gray-400 w-5 h-5"
+                className="absolute left-3 top-3 text-surface-400 w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -270,13 +267,9 @@ function Header() {
               {categories.map((category) => (
                 <Link
                   key={category._id}
-                  to={`/category/${category.name
-                    .toLocaleLowerCase()
-                    .split(" ")
-                    .join("-")
-                    .trim()}`}
+                  to={`/category/${category.name.toLocaleLowerCase().split(" ").join("-").trim()}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium"
+                  className="block px-4 py-3 text-surface-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium"
                 >
                   {category.name}
                 </Link>
@@ -284,17 +277,17 @@ function Header() {
             </div>
 
             {isAuthenticated && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-6 border-t border-surface-200">
                 <button
                   onClick={() => {
                     navigate("/cart");
                     setMobileMenuOpen(false);
                   }}
-                  className="flex items-center justify-between w-full px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium"
+                  className="flex items-center justify-between w-full px-4 py-3 text-surface-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all font-medium"
                 >
-                  <span className="flex items-center">
+                  <span className="flex items-center gap-3">
                     <svg
-                      className="w-5 h-5 mr-3"
+                      className="w-5 h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -308,9 +301,9 @@ function Header() {
                     </svg>
                     Shopping Cart
                   </span>
-                  {totalCartItems > 0 && (
-                    <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-600 rounded-full">
-                      {totalCartItems}
+                  {totalItems > 0 && (
+                    <span className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-primary-600 rounded-full">
+                      {totalItems}
                     </span>
                   )}
                 </button>
@@ -318,7 +311,7 @@ function Header() {
             )}
           </nav>
 
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-surface-200">
             {isAuthenticated ? (
               <div onClick={() => setMobileMenuOpen(false)}>
                 <User />
@@ -327,17 +320,19 @@ function Header() {
               <div className="space-y-2">
                 <Button
                   variant="primary"
+                  size="lg"
+                  fullWidth
                   to="/signup"
-                  className="w-full justify-center"
-                  funOnClick={() => setMobileMenuOpen(false)}
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   Sign Up
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="outline"
+                  size="lg"
+                  fullWidth
                   to="/login"
-                  className="w-full justify-center"
-                  funOnClick={() => setMobileMenuOpen(false)}
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   Login
                 </Button>

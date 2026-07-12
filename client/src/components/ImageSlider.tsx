@@ -85,39 +85,43 @@ function ImageSlider({
   const currentImageLoaded = loadedImages.get(activeIndex);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center overflow-hidden relative rounded-2xl bg-zinc-100">
-      {currentImageLoaded === undefined && !currentImageFailed && (
-        <div className="absolute inset-0 bg-zinc-200 animate-pulse" />
-      )}
+    <div role="region" aria-label="Image gallery" className="w-full h-full flex flex-col justify-center items-center overflow-hidden relative rounded-2xl bg-zinc-100">
+      <div aria-live="polite" aria-atomic="true" className="contents">
+        {currentImageLoaded === undefined && !currentImageFailed && (
+          <div className="absolute inset-0 bg-zinc-200 animate-pulse" />
+        )}
 
-      {currentImageFailed || !images[activeIndex] ? (
-        placeholderSrc ? (
-          <img
-            src={placeholderSrc}
-            alt="Placeholder"
-            className="w-full h-full object-cover"
-          />
+        {currentImageFailed || !images[activeIndex] ? (
+          placeholderSrc ? (
+            <img
+              src={placeholderSrc}
+              alt="Placeholder"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <ImagePlaceholder />
+          )
         ) : (
-          <ImagePlaceholder />
-        )
-      ) : (
-        <img
-          loading="lazy"
-          src={images[activeIndex]}
-          alt={`Slide ${activeIndex + 1}`}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          onError={() => {
-            setFailedImages(prev => new Set(prev).add(activeIndex));
-          }}
-        />
-      )}
+          <img
+            loading="lazy"
+            src={images[activeIndex]}
+            alt={`Slide ${activeIndex + 1}`}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            onError={() => {
+              setFailedImages(prev => new Set(prev).add(activeIndex));
+            }}
+          />
+        )}
+      </div>
       {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 border border-zinc-300/50 px-3 py-2 rounded-full bg-white/80 backdrop-blur-sm shadow-lg">
+        <div role="tablist" aria-label="Slides" className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 border border-zinc-300/50 px-3 py-2 rounded-full bg-white/80 backdrop-blur-sm shadow-lg">
           {images.map((_, index) => {
             const isFailed = failedImages.has(index);
             return (
               <button
                 key={index}
+                role="tab"
+                aria-selected={index === activeIndex}
                 onClick={() => goToSlide(index)}
                 aria-label={`Go to slide ${index + 1}`}
                 className={`relative transition-all duration-200 ${

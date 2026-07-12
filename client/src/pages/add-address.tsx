@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaPlus, FaExclamationCircle } from "react-icons/fa";
+import SEO from "../components/SEO";
 
 import useAuth from "../context/auth/AuthContext";
 
@@ -52,6 +53,7 @@ function AddAddress() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+      <SEO title="Add Address" description="Add a new shipping address." />
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
@@ -75,7 +77,7 @@ function AddAddress() {
           </div>
         )}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <form onSubmit={handelAddNewAddress} className="space-y-6">
+          <form aria-label="Add address form" onSubmit={handelAddNewAddress} className="space-y-6">
             <div>
               <label
                 htmlFor="address"

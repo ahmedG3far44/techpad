@@ -1,3 +1,4 @@
+import SEO from "../../components/SEO";
 import React, { useState, useRef, ChangeEvent } from "react";
 
 import { BiCheck, BiUpload, BiX } from "react-icons/bi";
@@ -194,208 +195,194 @@ const AdminCategory: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl h-screen mx-auto flex flex-col gap-10 min-h-screen  py-8 px-4">
-      <div className="">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-xl font-semibold text-gray-900">
-              Add Category
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Create a new product category
-            </p>
+    <div className="max-w-7xl mx-auto flex flex-col gap-8 py-6 sm:py-8 px-4 motion-safe:animate-fadeIn motion-safe:[animation-fill-mode:backwards]">
+      <SEO title="Manage Categories" description="Create product categories." />
+      <div className="bg-white rounded-xl border border-surface-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-surface-200">
+          <h1 className="text-base font-semibold text-surface-900">
+            Add Category
+          </h1>
+          <p className="text-sm text-surface-500 mt-1">
+            Create a new product category
+          </p>
+        </div>
+
+        {successMessage && (
+          <div className="mx-6 mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-3 motion-safe:animate-slideDown" role="alert">
+            <BiCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-emerald-900">
+                {successMessage}
+              </p>
+            </div>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="text-emerald-600 hover:text-emerald-800 motion-safe:transition-colors"
+            >
+              <BiX className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {errors.submit && (
+          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3" role="alert">
+            <FiAlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-900">
+                {errors.submit}
+              </p>
+            </div>
+            <button
+              onClick={() =>
+                setErrors((prev) => ({ ...prev, submit: undefined }))
+              }
+              className="text-red-600 hover:text-red-800 motion-safe:transition-colors"
+            >
+              <BiX className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        <div className="p-6 space-y-6">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-surface-700 mb-1.5"
+            >
+              Category Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              aria-label="Category name"
+              className={`w-full px-3.5 py-2.5 border rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400 disabled:cursor-not-allowed motion-safe:transition-shadow motion-safe:duration-150 ${
+                errors.name ? "border-red-300" : "border-surface-300"
+              }`}
+              placeholder="e.g., Electronics, Clothing, Food"
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <IoAlertCircle className="w-4 h-4" />
+                {errors.name}
+              </p>
+            )}
           </div>
 
-          {successMessage && (
-            <div className="mx-6 mt-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-              <BiCheck className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-green-900">
-                  {successMessage}
-                </p>
-              </div>
-              <button
-                onClick={() => setSuccessMessage(null)}
-                className="text-green-600 hover:text-green-800"
-              >
-                <BiX className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-surface-700 mb-1.5"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              rows={4}
+              aria-label="Category description"
+              className={`w-full px-3.5 py-2.5 border rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none disabled:bg-surface-50 disabled:text-surface-400 disabled:cursor-not-allowed motion-safe:transition-shadow motion-safe:duration-150 ${
+                errors.description ? "border-red-300" : "border-surface-300"
+              }`}
+              placeholder="Describe this category and what products it contains..."
+            />
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <IoAlertCircle className="w-4 h-4" />
+                {errors.description}
+              </p>
+            )}
+          </div>
 
-          {errors.submit && (
-            <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <FiAlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-red-900">
-                  {errors.submit}
-                </p>
-              </div>
-              <button
-                onClick={() =>
-                  setErrors((prev) => ({ ...prev, submit: undefined }))
-                }
-                className="text-red-600 hover:text-red-800"
-              >
-                <BiX className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">
+              Category Image
+            </label>
 
-          <div className="p-6 space-y-6">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Category Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed ${
-                  errors.name ? "border-red-300" : "border-gray-300"
-                }`}
-                placeholder="e.g., Electronics, Clothing, Food"
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <IoAlertCircle className="w-4 h-4" />
-                  {errors.name}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                rows={4}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed ${
-                  errors.description ? "border-red-300" : "border-gray-300"
-                }`}
-                placeholder="Describe this category and what products it contains..."
-              />
-              {errors.description && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <IoAlertCircle className="w-4 h-4" />
-                  {errors.description}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category Image
-              </label>
-
-              {!imagePreview ? (
-                <div className="relative">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    disabled={isLoading}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                      errors.image
-                        ? "border-red-300 bg-red-50"
-                        : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                    } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
-                  >
-                    <BiUpload className="w-8 h-8 text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-600">
-                      Click to upload image
-                    </span>
-                    <span className="text-xs text-gray-500 mt-1">
-                      PNG, JPG up to 5MB
-                    </span>
-                  </label>
-                </div>
-              ) : (
-                <div className="relative w-40 h-40 border-2  border-gray-300 rounded-lg overflow-hidden">
-                  <img
-                    src={imagePreview}
-                    alt="Category preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    disabled={isLoading}
-                    className="absolute top-2 right-2 p-1 bg-red-500  text-white rounded-full hover:bg-red-800 cursor-pointer duration-300 shadow-md transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <BiX color="white" className="w-5 h-5 text-gray-700" />
-                  </button>
-                </div>
-              )}
-
-              {errors.image && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <IoAlertCircle className="w-4 h-4" />
-                  {errors.image}
-                </p>
-              )}
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={handleCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 transition-colors min-w-[120px]"
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Creating...
+            {!imagePreview ? (
+              <div className="relative">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={isLoading}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer motion-safe:transition-colors motion-safe:duration-150 ${
+                    errors.image
+                      ? "border-red-300 bg-red-50"
+                      : "border-surface-300 bg-surface-50 hover:bg-surface-100"
+                  } ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
+                >
+                  <BiUpload className="w-8 h-8 text-surface-400 mb-2" />
+                  <span className="text-sm text-surface-600">
+                    Click to upload image
                   </span>
-                ) : (
-                  "Create Category"
-                )}
-              </button>
-            </div>
+                  <span className="text-xs text-surface-400 mt-1">
+                    PNG, JPG up to 5MB
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <div className="relative w-40 h-40 border-2 border-surface-300 rounded-lg overflow-hidden bg-surface-50">
+                <img
+                  src={imagePreview}
+                  alt="Category preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  disabled={isLoading}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-700 shadow-md motion-safe:transition-colors motion-safe:duration-150 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <BiX className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {errors.image && (
+              <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                <IoAlertCircle className="w-4 h-4" />
+                {errors.image}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-surface-200">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={handleCancel}
+              className="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="px-4 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 motion-safe:transition-colors motion-safe:duration-150 min-w-[120px]"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                "Create Category"
+              )}
+            </button>
           </div>
         </div>
       </div>

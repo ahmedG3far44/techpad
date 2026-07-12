@@ -1,79 +1,97 @@
-import { ReactNode, useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Customer, Order, ProductInITemsList } from "../utils/types";
 
 import { handlePrice } from "../utils/handlers";
 import { MdKeyboardArrowUp } from "react-icons/md";
-import { IoSearchOutline } from "react-icons/io5";
+import { IoSearchOutline, IoBagCheckOutline } from "react-icons/io5";
+import { HiTruck, HiXCircle } from "react-icons/hi";
+import { BiPackage, BiCube } from "react-icons/bi";
 
 import useAuth from "../context/auth/AuthContext";
 import toast from "react-hot-toast";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
-function Status({
-  statusText,
-  className,
-  children,
-}: {
-  statusText: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
-      case "SHIPPED":
-        return "bg-blue-100 text-blue-800";
-      case "DELIVERED":
-        return "bg-green-100 text-green-800";
-      case "CANCELED":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+const statusConfig = {
+  PENDING: {
+    bg: "bg-accent-100",
+    text: "text-accent-800",
+    dot: "bg-accent-500",
+    label: "Pending",
+  },
+  SHIPPED: {
+    bg: "bg-primary-100",
+    text: "text-primary-800",
+    dot: "bg-primary-500",
+    label: "Shipped",
+  },
+  DELIVERED: {
+    bg: "bg-emerald-100",
+    text: "text-emerald-800",
+    dot: "bg-emerald-500",
+    label: "Delivered",
+  },
+  CANCELED: {
+    bg: "bg-red-100",
+    text: "text-red-800",
+    dot: "bg-red-500",
+    label: "Canceled",
+  },
+} as const;
 
+function Status({ statusText }: { statusText: string }) {
+  const config = statusConfig[statusText.toUpperCase() as keyof typeof statusConfig] || {
+    bg: "bg-surface-100",
+    text: "text-surface-700",
+    dot: "bg-surface-400",
+    label: statusText,
+  };
   return (
     <span
-      className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-        statusText
-      )} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}
     >
-      {children}
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+      {config.label}
     </span>
   );
 }
 
 function OrderCustomerInfo({
   customer,
-  className,
 }: {
   customer: Customer;
-  className?: string;
 }) {
   return (
-    <div className={`bg-white border border-zinc-200 rounded-md ${className}`}>
-      <h3 className="font-bold mb-2">Customer Information</h3>
-      <div className="space-y-1 text-sm">
-        <p>
-          <span className="font-semibold">Name:</span> {customer.name}
+    <div className="bg-white border border-surface-200 rounded-xl p-4">
+      <h3 className="text-sm font-semibold text-surface-800 mb-3 flex items-center gap-2">
+        <BiCube className="w-4 h-4 text-primary-600" />
+        Customer Information
+      </h3>
+      <div className="space-y-1.5 text-sm text-surface-600">
+        <p className="flex gap-2">
+          <span className="font-medium text-surface-700 min-w-[60px]">Name:</span>
+          <span>{customer.name}</span>
         </p>
         {customer.email && (
-          <p>
-            <span className="font-semibold">Email:</span> {customer.email}
+          <p className="flex gap-2">
+            <span className="font-medium text-surface-700 min-w-[60px]">Email:</span>
+            <span>{customer.email}</span>
           </p>
         )}
-        <p>
-          <span className="font-semibold">Address:</span> {customer.address}
+        <p className="flex gap-2">
+          <span className="font-medium text-surface-700 min-w-[60px]">Address:</span>
+          <span className="flex-1">{customer.address}</span>
         </p>
-        {customer?.phone ? (
-          <p>
-            <span className="font-semibold">Phone:</span> {customer.phone}
+        {customer.phone && (
+          <p className="flex gap-2">
+            <span className="font-medium text-surface-700 min-w-[60px]">Phone:</span>
+            <span>{customer.phone}</span>
           </p>
-        ) : (
-          <p>
-            <span className="font-semibold">Phone:</span> +201505508939
+        )}
+        {customer.area && (
+          <p className="flex gap-2">
+            <span className="font-medium text-surface-700 min-w-[60px]">Area:</span>
+            <span>{customer.area}</span>
           </p>
         )}
       </div>
@@ -81,80 +99,93 @@ function OrderCustomerInfo({
   );
 }
 
-function OrderTracker({
-  orderStatus,
-  className,
-}: {
-  orderStatus: string;
-  className?: string;
-}) {
+function OrderTracker({ orderStatus }: { orderStatus: string }) {
   const statuses = ["PENDING", "SHIPPED", "DELIVERED"];
-  const currentStatusIndex = statuses.indexOf(orderStatus.toUpperCase());
+  const currentIdx = statuses.indexOf(orderStatus.toUpperCase());
+
+  if (currentIdx === -1) return null;
+
+  const iconMap = [
+    <BiPackage key="package" className="w-4 h-4" />,
+    <HiTruck key="truck" className="w-4 h-4" />,
+    <IoBagCheckOutline key="bag" className="w-4 h-4" />,
+  ];
 
   return (
-    <div className={`bg-white border border-zinc-200 rounded-md ${className}`}>
-      <h3 className="font-bold mb-3">Order Progress</h3>
-      <div className="flex items-center space-x-4">
-        {statuses.map((status, index) => (
-          <div key={status} className="flex items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                index <= currentStatusIndex
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-500"
-              }`}
-            >
-              {index + 1}
+    <div className="bg-white border border-surface-200 rounded-xl p-4">
+      <h3 className="text-sm font-semibold text-surface-800 mb-4 flex items-center gap-2">
+        <HiTruck className="w-4 h-4 text-primary-600" />
+        Order Progress
+      </h3>
+      <div className="flex items-center gap-0 sm:gap-2">
+        {statuses.map((s, i) => {
+          const isCompleted = i <= currentIdx;
+          const isCurrent = i === currentIdx && orderStatus.toUpperCase() !== "DELIVERED";
+          return (
+            <div key={s} className="flex items-center flex-1 sm:flex-none">
+              <div className="flex flex-col items-center gap-1.5">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold motion-safe:transition-all motion-safe:duration-300 ${
+                    isCompleted
+                      ? "bg-primary-600 text-white shadow-sm shadow-primary-200"
+                      : "bg-surface-100 text-surface-400"
+                  } ${isCurrent ? "motion-safe:animate-pulse-slow" : ""}`}
+                >
+                  {iconMap[i]}
+                </div>
+                <span
+                  className={`text-[11px] font-medium hidden sm:block ${
+                    isCompleted ? "text-primary-700" : "text-surface-400"
+                  }`}
+                >
+                  {s}
+                </span>
+              </div>
+              {i < statuses.length - 1 && (
+                <div
+                  className={`h-0.5 flex-1 mx-1 sm:mx-3 mt-[-1.5rem] motion-safe:transition-all motion-safe:duration-500 ${
+                    i < currentIdx ? "bg-primary-400" : "bg-surface-200"
+                  }`}
+                />
+              )}
             </div>
-            <span
-              className={`ml-2 text-sm font-medium ${
-                index <= currentStatusIndex ? "text-blue-600" : "text-gray-500"
-              }`}
-            >
-              {status}
-            </span>
-            {index < statuses.length - 1 && (
-              <div
-                className={`w-8 h-0.5 mx-2 ${
-                  index < currentStatusIndex ? "bg-blue-600" : "bg-gray-200"
-                }`}
-              />
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function Items({
-  itemsList,
-  className,
-}: {
-  itemsList: ProductInITemsList[];
-  className?: string;
-}) {
+function Items({ itemsList }: { itemsList: ProductInITemsList[] }) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className="divide-y divide-surface-100">
       {itemsList.map((item, index) => (
         <div
           key={index}
-          className="flex items-center space-x-4 p-2 border border-zinc-200 rounded-md"
+          className="flex items-center gap-3 sm:gap-4 py-3 first:pt-0 last:pb-0"
         >
-          <img
-            src={item.productImages}
-            alt={item.productTitle}
-            className="w-12 h-12 object-contain p-1 rounded-md border border-zinc-300"
-          />
-          <div className="flex-1">
-            <h4 className="font-semibold text-sm">{item.productTitle}</h4>
-            <p className="w-3/5 overflow-x-hidden  text-xs  text-gray-600">
-              {item.productDescription}
-            </p>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-surface-100 border border-surface-200 flex-shrink-0 overflow-hidden">
+            <img
+              src={item.productImages}
+              alt={item.productTitle}
+              className="w-full h-full object-contain p-1.5"
+            />
           </div>
-          <div className="text-right">
-            <p className="font-bold">{handlePrice(item.productPrice)}</p>
-            <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm text-surface-800 truncate">
+              {item.productTitle}
+            </h4>
+            {item.productDescription && (
+              <p className="text-xs text-surface-500 truncate mt-0.5">
+                {item.productDescription}
+              </p>
+            )}
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="font-bold text-sm text-surface-800">
+              {handlePrice(item.productPrice)}
+            </p>
+            <p className="text-xs text-surface-400">Qty: {item.quantity}</p>
           </div>
         </div>
       ))}
@@ -165,9 +196,11 @@ function Items({
 function OrderItem({
   order,
   onStatusUpdate,
+  index,
 }: {
   order: Order;
   onStatusUpdate?: (orderId: string, newStatus: string) => void;
+  index: number;
 }) {
   const [isOpen, setOpen] = useState(false);
   const [shippPending, setShippPending] = useState(false);
@@ -178,210 +211,155 @@ function OrderItem({
 
   const date = new Date(order.createdAt);
 
-  const handelUpdateOrderStatusToDelivered = async () => {
-    try {
-      if (!token || !user?.isAdmin)
-        throw new Error("Unauthorized user your not able to do this action!!");
-
-      setCompletePending(true);
-      const response = await fetch(`${BASE_URL}/admin/orders`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          orderId: order._id,
-          status: "DELIVERED",
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("can't update order status, please try again");
+  const updateStatus = useCallback(
+    async (status: string) => {
+      if (!token || !user?.isAdmin) {
+        toast.error("Unauthorized");
+        return;
       }
-      const data = await response.json();
-      if (!data) throw new Error("can't get response data!!");
+      try {
+        const setter =
+          status === "DELIVERED"
+            ? setCompletePending
+            : status === "SHIPPED"
+            ? setShippPending
+            : setCancelPending;
+        setter(true);
 
-      if (onStatusUpdate) {
-        onStatusUpdate(order._id, "DELIVERED");
+        const response = await fetch(`${BASE_URL}/admin/orders`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ orderId: order._id, status }),
+        });
+        if (!response.ok) throw new Error("Failed to update order status");
+
+        if (onStatusUpdate) onStatusUpdate(order._id, status);
+        toast.success(`Order ${status.toLowerCase()} successfully`);
+      } catch (err: any) {
+        toast.error(err?.message || "Something went wrong");
+      } finally {
+        setCompletePending(false);
+        setShippPending(false);
+        setCancelPending(false);
       }
-
-      toast.success("order status updated to DELIVERED success!!");
-    } catch (err: any) {
-      console.log(err?.message);
-      toast.error(err?.message);
-    } finally {
-      setCompletePending(false);
-    }
-  };
-
-  const handelUpdateOrderStatusToShipped = async () => {
-    try {
-      if (!token || !user?.isAdmin)
-        throw new Error("Unauthorized user your not able to do this action!!");
-
-      setShippPending(true);
-      const response = await fetch(`${BASE_URL}/admin/orders`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          orderId: order._id,
-          status: "SHIPPED",
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("can't update order status, please try again");
-      }
-      const data = await response.json();
-      if (!data) throw new Error("can't get response data!!");
-
-      if (onStatusUpdate) {
-        onStatusUpdate(order._id, "SHIPPED");
-      }
-
-      toast.success("order status updated to SHIPPED success!!");
-    } catch (err: any) {
-      console.log(err?.message);
-      toast.error(err?.message);
-    } finally {
-      setShippPending(false);
-    }
-  };
-
-  const handelUpdateOrderStatusToCanceled = async () => {
-    try {
-      if (!token || !user?.isAdmin)
-        throw new Error("Unauthorized user your not able to do this action!!");
-
-      setCancelPending(true);
-      const response = await fetch(`${BASE_URL}/admin/orders`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          orderId: order._id,
-          status: "CANCELED",
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("can't update order status, please try again");
-      }
-      const data = await response.json();
-      if (!data) throw new Error("can't get response data!!");
-
-      if (onStatusUpdate) {
-        onStatusUpdate(order._id, "CANCELED");
-      }
-
-      toast.success("The order is cancled!!");
-    } catch (err: any) {
-      toast.error(err?.message);
-    } finally {
-      setCancelPending(false);
-    }
-  };
+    },
+    [token, user, order._id, onStatusUpdate]
+  );
 
   return (
-    <div className="w-full flex flex-col justify-start items-start gap-4">
-      <div
-        role="button"
-        className="w-full flex justify-around items-center p-2 border-zinc-200 border-t border-b cursor-pointer hover:shadow-md transition-all max-sm:flex-col max-md:flex-col max-sm:justify-start max-md:justify-start max-sm:items-start max-md:items-start"
-        onClick={() => setOpen(!isOpen)}
+    <div
+      className="border border-surface-200 rounded-xl bg-white overflow-hidden motion-safe:animate-slideUp motion-safe:[animation-fill-mode:backwards]"
+      style={{ animationDelay: `${index * 60}ms` }}
+      role="listitem"
+    >
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 text-left hover:bg-surface-50 motion-safe:transition-colors motion-safe:duration-150 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 cursor-pointer"
+        aria-expanded={isOpen}
       >
-        <span className="text-sm underline text-blue-500 font-semibold">
-          #-{order._id}
-        </span>
-
-        <div className="w-full flex items-center justify-center gap-2 mx-4">
-          <span className="w-full text-sm text-nowrap text-zinc-600 font-semibold">
-            {date.toLocaleDateString()} | {date.toLocaleTimeString()}
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 flex-wrap">
+          <span className="text-xs sm:text-sm font-mono font-semibold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md whitespace-nowrap">
+            #{order._id.slice(-8).toUpperCase()}
           </span>
+          <span className="text-xs text-surface-400 hidden sm:inline whitespace-nowrap">
+            {date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+          <span className="text-xs text-surface-400 sm:hidden whitespace-nowrap">
+            {date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+          <Status statusText={order.status.toString()} />
         </div>
-        <div className="w-full flex items-center justify-center gap-2">
-          <Status statusText={order.status.toString()} className="text-sm">
-            {order.status}
-          </Status>
-        </div>
-        <div className="w-full flex items-center justify-center gap-2">
-          <span className="text-zinc-800 font-black text-xl">
+        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <span className="text-sm sm:text-base font-bold text-surface-800">
             {handlePrice(order.totalOrderPrice)}
           </span>
+          <div
+            className={`motion-safe:transition-transform motion-safe:duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          >
+            <MdKeyboardArrowUp size={20} className="text-surface-400" />
+          </div>
         </div>
+      </button>
 
-        <div
-          className={`duration-150 transition-transform ${
-            isOpen ? "-rotate-x-180" : "rotate-0"
-          }`}
-        >
-          <span>
-            <MdKeyboardArrowUp size={20} />
-          </span>
-        </div>
-      </div>
-      {isOpen && (
-        <div className="bg-zinc-200 p-4 w-full border border-zinc-300 rounded-2xl">
-          {order.customer && (
-            <OrderCustomerInfo className="p-2" customer={order.customer} />
-          )}
-          <OrderTracker className="p-2" orderStatus={order.status.toString()} />
-          <div className="w-full animate-fill p-2 bg-white border border-zinc-200 rounded-md">
-            <h1 className="my-2 font-bold">All Items</h1>
-            <Items
-              itemsList={order.orderItems.map((item) => ({
+      <div
+        className={`motion-safe:transition-all motion-safe:duration-300 motion-reduce:transition-none ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        } grid`}
+      >
+        <div className="overflow-hidden" role="region" aria-label={`Order #${order._id.slice(-8).toUpperCase()}`}>
+          <div className="border-t border-surface-200 p-3 sm:p-4 space-y-4">
+            {order.customer && <OrderCustomerInfo customer={order.customer} />}
+            <OrderTracker orderStatus={order.status.toString()} />
+            <div className="bg-white border border-surface-200 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-surface-800 mb-3 flex items-center gap-2">
+                <BiPackage className="w-4 h-4 text-primary-600" />
+                Items ({order.orderItems.length})
+              </h3>
+              <Items itemsList={order.orderItems.map((item) => ({
                 ...item,
                 productImages: item.productImages || "",
-              }))}
-            />
+              }))} />
+            </div>
+            {user?.isAdmin &&
+              (order.status.toString() === "PENDING" ||
+                order.status.toString() === "SHIPPED") && (
+                <div className="flex items-center gap-2 pt-1" aria-live="polite">
+                  <button
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:bg-surface-300 disabled:cursor-not-allowed motion-safe:transition-all motion-safe:duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 cursor-pointer"
+                    disabled={order.status.toString() !== "SHIPPED" || completePending}
+                    onClick={() => updateStatus("DELIVERED")}
+                  >
+                    {completePending ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <IoBagCheckOutline className="w-4 h-4" /> Complete
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 active:bg-primary-800 disabled:bg-surface-300 disabled:cursor-not-allowed motion-safe:transition-all motion-safe:duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+                    disabled={order.status.toString() !== "PENDING" || shippPending}
+                    onClick={() => updateStatus("SHIPPED")}
+                  >
+                    {shippPending ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <HiTruck className="w-4 h-4" /> Ship
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-surface-300 disabled:cursor-not-allowed motion-safe:transition-all motion-safe:duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 cursor-pointer"
+                    disabled={cancelPending}
+                    onClick={() => updateStatus("CANCELED")}
+                  >
+                    {cancelPending ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <HiXCircle className="w-4 h-4" /> Cancel
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
           </div>
-          {user?.isAdmin &&
-            (order.status.toString() === "PENDING" ||
-              order.status.toString() === "SHIPPED") && (
-              <div className="flex items-center gap-2 my-2">
-                <button
-                  className="duration-150 px-4 py-1 rounded-md bg-green-500 hover:bg-green-700 text-white cursor-pointer disabled:bg-zinc-600 disabled:cursor-not-allowed"
-                  disabled={
-                    order.status.toString() !== "SHIPPED" || completePending
-                  }
-                  onClick={handelUpdateOrderStatusToDelivered}
-                >
-                  {completePending ? (
-                    <span className="border border-b-transparent w-4 h-4 rounded-full border-zinc-500 animate-spin"></span>
-                  ) : (
-                    "Completed"
-                  )}
-                </button>
-                <button
-                  className="duration-150 px-4 py-1 rounded-md bg-purple-500 hover:bg-purple-700 text-white cursor-pointer disabled:bg-zinc-600 disabled:cursor-not-allowed"
-                  disabled={
-                    order.status.toString() !== "PENDING" || shippPending
-                  }
-                  onClick={handelUpdateOrderStatusToShipped}
-                >
-                  {shippPending ? (
-                    <span className="border border-b-transparent w-4 h-4 rounded-full border-zinc-500 animate-spin"></span>
-                  ) : (
-                    "Shipped"
-                  )}
-                </button>
-                <button
-                  className="duration-150 px-4 py-1 rounded-md bg-red-500 hover:bg-red-700 text-white cursor-pointer disabled:bg-red-600 disabled:cursor-not-allowed"
-                  disabled={cancelPending}
-                  onClick={handelUpdateOrderStatusToCanceled}
-                >
-                  {cancelPending ? (
-                    <span className="border border-b-transparent w-4 h-4 rounded-full border-zinc-500 animate-spin"></span>
-                  ) : (
-                    "Cancel"
-                  )}
-                </button>
-              </div>
-            )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -407,44 +385,47 @@ function ShowOrdersHistory({
   }, [orders, searchTerm]);
 
   return (
-    <div className="w-full">
-      <div className="mb-6 relative">
-        <div className="relative">
-          <IoSearchOutline
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Search by Order ID, Customer Name, or Email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-        {searchTerm && (
-          <div className="mt-2 text-sm text-zinc-600">
-            Found {filteredOrders.length} order
-            {filteredOrders.length !== 1 ? "s" : ""}
-          </div>
-        )}
+    <div className="w-full space-y-4">
+      <div className="relative">
+        <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-400 w-5 h-5 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Search by Order ID, Customer Name, or Email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-surface-300 rounded-xl text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent motion-safe:transition-shadow motion-safe:duration-150"
+        />
       </div>
+
+      {searchTerm && (
+        <p className="text-sm text-surface-500" role="status">
+          Found {filteredOrders.length} order{filteredOrders.length !== 1 ? "s" : ""}
+        </p>
+      )}
+
       {filteredOrders.length > 0 ? (
-        <div className="w-full flex flex-col-reverse justify-start items-start gap-4">
-          {filteredOrders.map((order) => (
+        <div className="space-y-3" role="list" aria-label="Order list">
+          {filteredOrders.map((order, i) => (
             <OrderItem
               key={order._id}
               order={order}
               onStatusUpdate={onStatusUpdate}
+              index={i}
             />
           ))}
         </div>
       ) : (
-        <div className="w-full flex justify-center items-center p-12 bg-zinc-50 border border-zinc-200 rounded-lg">
-          <p className="text-lg text-gray-500 font-semibold">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <IoBagCheckOutline className="w-16 h-16 text-surface-300 mb-4" />
+          <p className="text-lg font-semibold text-surface-600">
             {searchTerm
-              ? "No orders found matching your search"
-              : "No orders available"}
+              ? "No orders match your search"
+              : "No orders yet"}
+          </p>
+          <p className="text-sm text-surface-400 mt-1.5 max-w-sm">
+            {searchTerm
+              ? "Try a different search term or check your spelling"
+              : "Your order history will appear here once you make your first purchase"}
           </p>
         </div>
       )}

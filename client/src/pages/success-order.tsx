@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { IoCheckmarkDoneCircle } from "react-icons/io5";
+import SEO from "../components/SEO";
 
 function SuccessOrder() {
   const navigate = useNavigate();
   return (
     <div className="w-full h-full flex justify-center items-center  min-h-full flex-col">
-      <div className="w-[400px] mt-60 bg-gray-50 p-4 rounded-md border border-gray-300 flex flex-col justify-center items-center gap-4">
+      <SEO title="Order Successful" description="Your order has been placed successfully." />
+      <div role="status" aria-live="assertive" className="w-[400px] mt-60 bg-gray-50 p-4 rounded-md border border-gray-300 flex flex-col justify-center items-center gap-4">
         <h1 className="flex flex-col justify-center items-center gap-2 text-2xl text-gray-900 font-bold">
           <span className="text-green-500">
             <IoCheckmarkDoneCircle size={30} />

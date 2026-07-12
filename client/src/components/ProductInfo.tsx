@@ -5,17 +5,8 @@ import { useNavigate } from "react-router-dom";
 import ProductImage from "./ProductImage";
 import useAuth from "../context/auth/AuthContext";
 import useCart from "../context/cart/CartContext";
+import Button from "./Button";
 
-export interface ProductInfoProps {
-  productId: string;
-  title: string;
-  description: string;
-  category: string;
-  images: string[];
-  stock: number;
-  price: number;
-  createdAt: string;
-}
 function ProductInfo({
   _id,
   title,
@@ -37,6 +28,7 @@ function ProductInfo({
       await addItemToCart({ productId: _id, token, quantity: 1 });
     }
   };
+
   const handelBuyNow = async () => {
     if (!isAuthenticated || !token) {
       navigate("/login");
@@ -50,50 +42,59 @@ function ProductInfo({
       }
     }
   };
+
   return (
-    <div className="flex justify-between gap-10 items-center mt-10">
-      <div className="flex-1 overflow-hidden">
-        <ProductImage images={images} />
+    <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start mt-6 lg:mt-10">
+      <div className="w-full lg:flex-1">
+        <ProductImage images={images} title={title} />
       </div>
 
-      <div className="flex-1   flex flex-col justify-start items-start gap-2 p-4 ">
-        <h2 className="text-4xl text-blue-500 font-black">{title}</h2>
-        <div className="my-8 text-gray-700">
+      <div className="w-full lg:flex-1 flex flex-col gap-3 p-0 lg:p-4">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-surface-900">
+          {title}
+        </h2>
+
+        <span className="inline-flex w-fit text-sm font-medium text-primary-600 bg-primary-50 px-3 py-1 rounded-full border border-primary-200">
+          {categoryName}
+        </span>
+
+        <div className="my-2 lg:my-4 text-surface-600 text-sm sm:text-base leading-relaxed">
           <p>{description}</p>
         </div>
-        <h4 className="text-blue-500 py-1 px-4 rounded-4xl my-4 border bg-blue-50 border-blue-500">
-          {categoryName}
-        </h4>
-        <div className="flex flex-col justify-start items-start">
-          <span className="text-2xl text-blue-500 font-bold">
+
+        <div className="flex flex-col gap-1">
+          <span className="text-2xl sm:text-3xl font-bold text-primary-600">
             {handlePrice(price)}
           </span>
-          <span className="text-sm my-4 text-zinc-500">
-            {stock} item in stock
+          <span className="text-sm text-surface-500">
+            {stock > 0 ? `${stock} items in stock` : "Out of stock"}
           </span>
         </div>
-        <div>
-          <span className="text-sm">
-            last updates:{" "}
-            <span className="text-gray-500">
-              {createdAt && new Date(createdAt).toString()}
-            </span>
-          </span>
-        </div>
+
+        {createdAt && (
+          <p className="text-xs text-surface-400">
+            Listed: {new Date(createdAt).toLocaleDateString()}
+          </p>
+        )}
+
         {isAuthenticated && !user?.isAdmin && (
-          <div className="w-full flex justify-center  items-end gap-4 mt-auto">
-            <button
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-auto pt-4">
+            <Button
+              variant="outline"
+              size="lg"
+              fullWidth
               onClick={handelAddToCart}
-              className="px-4 py-2 cursor-pointer rounded-md text-blue-500 border hover:bg-blue-500 hover:text-white duration-150 border-blue-500 w-full"
             >
               Add To Cart
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
               onClick={handelBuyNow}
-              className="px-4 py-2 cursor-pointer rounded-md text-white bg-blue-500 w-full hover:bg-blue-700"
             >
               Buy Now
-            </button>
+            </Button>
           </div>
         )}
       </div>
