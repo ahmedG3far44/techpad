@@ -33,7 +33,7 @@ mongoose
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send(`<h1>App is running successfully! environment: ${env}</h1>`);
+  res.send(`<h1>TechPad Server | environment: ${env}</h1>`);
 });
 app.get("/health", (req, res) => {
   res.json({
