@@ -33,9 +33,15 @@ mongoose
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send(`<h1>TechPad E-commerce Server | environment: ${env}</h1>`);
+  res.send(`<div>
+    <h1>TechPad E-commerce API</h1>
+    <p>Environment: ${env}</p>
+    <p>Port: ${port}</p>
+    <p>Allowed Origins: ${allowedOrigins}</p>
+  </div>`);
 });
-app.get("/health", (req, res) => {
+
+app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     message: `TechPad E-commerce server is running good in ${env} environment!`,
