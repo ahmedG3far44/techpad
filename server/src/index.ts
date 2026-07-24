@@ -33,10 +33,13 @@ mongoose
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("<h1>App is running successfully!</h1>");
+  res.send(`<h1>App is running successfully! environment: ${env}</h1>`);
 });
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "server is running good!" });
+  res.json({
+    status: "ok",
+    message: `TechPad server is running good in ${env} environment!`,
+  });
 });
 app.use("/api", rootRoute);
 
