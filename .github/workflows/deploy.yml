@@ -20,12 +20,12 @@ jobs:
                   username: ${{ secrets.SERVER_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      ENV_CONTENT=$(echo "${{ secrets.ENV_FILE_BASE64 }}" | base64 -d)
+                      ENV_CONTENT=$(printf '%s' "${{ secrets.ENV_FILE_CONTENT }}" | base64 -d)
 
-                      bash /home/njerka/apps/deploy.sh \
+                      /home/njerka/apps/deploy.sh \
                         --port 5000 \
                         --subdomain techpad \
                         --domain njerka.xyz \
+                        --git https://github.com/ahmedG3far44/techpad.git \
                         --dir "./server" \
-                        --git "https://github.com/ahmedG3far44/techpad.git" \
                         --env "$ENV_CONTENT"
