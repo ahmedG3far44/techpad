@@ -33,7 +33,7 @@ mongoose
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("app is running success");
+  res.send("<h1>App is running successfully!</h1>");
 });
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "server is running good!" });
