@@ -33,12 +33,12 @@ mongoose
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send(`<h1>TechPad Server | environment: ${env}</h1>`);
+  res.send(`<h1>TechPad E-commerce Server | environment: ${env}</h1>`);
 });
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
-    message: `TechPad server is running good in ${env} environment!`,
+    message: `TechPad E-commerce server is running good in ${env} environment!`,
   });
 });
 app.use("/api", rootRoute);
