@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "nodemon src/index.ts",
     "seed": "ts-node src/seed.ts",
-    "prod": "node dist/index.js"
+    "start": "node dist/index.js"
   },
   "keywords": [
     "E-commerce",
