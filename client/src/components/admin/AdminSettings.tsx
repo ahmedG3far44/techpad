@@ -1,6 +1,6 @@
 import SEO from "../../components/SEO";
 import { useState, useEffect } from "react";
-import { FiSave, FiAlertCircle, FiCheck, FiRefreshCw } from "react-icons/fi";
+import { FiSave, FiAlertCircle, FiCheck } from "react-icons/fi";
 import useAuth from "../../context/auth/AuthContext";
 import { useCurrency } from "../../context/currency/CurrencyContext";
 
@@ -98,12 +98,6 @@ function AdminSettings() {
       setLoading(false);
     }
   };
-
-  const previewAmount = (() => {
-    const rate = parseFloat(exchangeRate) || 1;
-    const examples = [19.99, 49.99, 129.99];
-    return examples.map((p) => `${currencySymbol}${(p * rate).toLocaleString("en-US", { minimumFractionDigits: 2 })}`);
-  })();
 
   return (
     <div className="w-full py-6 sm:py-8 motion-safe:animate-fadeIn motion-safe:[animation-fill-mode:backwards]">

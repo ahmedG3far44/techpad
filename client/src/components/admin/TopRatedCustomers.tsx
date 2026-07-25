@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { FaCrown } from "react-icons/fa";
-import { HiOutlineUserGroup } from "react-icons/hi";
 
 import useAuth from "../../context/auth/AuthContext";
 

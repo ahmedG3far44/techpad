@@ -7,7 +7,6 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { BiX } from "react-icons/bi";
-import { CgSpinner } from "react-icons/cg";
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 
 import useAuth from "../../context/auth/AuthContext";

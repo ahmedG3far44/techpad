@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { initPriceFormatter, getStoreSettings } from "../../utils/handlers";
+import { initPriceFormatter } from "../../utils/handlers";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
