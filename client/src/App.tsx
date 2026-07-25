@@ -1,7 +1,6 @@
-import { Toaster } from "react-hot-toast";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 
+import Home from "./pages/Home";
+import SEO from "./components/SEO";
 import CartPage from "./pages/cart";
 import LoginPage from "./pages/login";
 import SignupPage from "./pages/signup";
@@ -24,14 +23,18 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminCategory from "./components/admin/AdminCategory";
 import CategoryProvider from "./context/category/CategoryProvider";
-import { CurrencyProvider } from "./context/currency/CurrencyContext";
 import AdminSettings from "./components/admin/AdminSettings";
-import SEO from "./components/SEO";
-import Home from "./pages/Home";
+
+import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/react"
+import { HelmetProvider } from "react-helmet-async";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CurrencyProvider } from "./context/currency/CurrencyContext";
 
 function App() {
   return (
     <HelmetProvider>
+    <Analytics />
     <AuthProvider>
       <CurrencyProvider>
       <CartProvider>
