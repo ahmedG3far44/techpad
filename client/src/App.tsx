@@ -27,6 +27,7 @@ import AdminSettings from "./components/admin/AdminSettings";
 
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CurrencyProvider } from "./context/currency/CurrencyContext";
@@ -35,6 +36,7 @@ function App() {
   return (
     <HelmetProvider>
     <Analytics />
+    <SpeedInsights />
     <AuthProvider>
       <CurrencyProvider>
       <CartProvider>
