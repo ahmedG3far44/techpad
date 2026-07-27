@@ -60,21 +60,23 @@ function Header() {
             : "bg-white border-b border-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto sm:py-2 lg:py-4">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-8 flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2 lg:py-3">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
+            <div className="flex items-center gap-4 sm:gap-6 lg:gap-8 flex-1 min-w-0">
               <Logo />
-              <Navigation categories={categories} />
+              <div className="hidden lg:block">
+                <Navigation categories={categories} />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setSearchOpen(!isSearchOpen)}
-                className="hidden md:flex items-center justify-center w-10 h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                 aria-label="Search"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -90,11 +92,11 @@ function Header() {
 
               {isAuthenticated && <ShoppingCart itemsCartNumber={totalItems} />}
 
-              <div className="hidden md:flex items-center">
+              <div className="hidden sm:flex items-center">
                 {isAuthenticated ? (
                   <User />
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <Button variant="ghost" size="sm" to="/login">
                       Login
                     </Button>
@@ -107,14 +109,14 @@ function Header() {
 
               <button
                 onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden flex items-center justify-center w-10 h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                className="lg:hidden flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 text-surface-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                 aria-label="Menu"
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-menu"
               >
                 {isMobileMenuOpen ? (
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -128,7 +130,7 @@ function Header() {
                   </svg>
                 ) : (
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -146,7 +148,7 @@ function Header() {
           </div>
 
           {isSearchOpen && (
-            <div className="hidden md:block pb-4 animate-slideDown">
+            <div className="pb-2 sm:pb-3 animate-slideDown">
               <form
                 onSubmit={handleSearch}
                 className="relative max-w-2xl mx-auto"
@@ -156,11 +158,11 @@ function Header() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="w-full pl-12 pr-4 py-3 border border-surface-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm bg-surface-50"
+                  className="w-full pl-10 sm:pl-12 pr-10 py-2 sm:py-3 border border-surface-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm bg-surface-50 text-sm sm:text-base"
                   autoFocus
                 />
                 <svg
-                  className="absolute left-4 top-3.5 text-surface-400 w-5 h-5"
+                  className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 text-surface-400 w-4 h-4 sm:w-5 sm:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -176,10 +178,10 @@ function Header() {
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-3.5 text-surface-400 hover:text-surface-600"
+                    className="absolute right-3 sm:right-4 top-2.5 sm:top-3.5 text-surface-400 hover:text-surface-600"
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

@@ -12,6 +12,26 @@ export const getAllProducts = async () => {
   }
 };
 
+interface SearchProductsParams {
+  query: string;
+}
+
+export const searchProducts = async ({ query }: SearchProductsParams) => {
+  try {
+    const regex = new RegExp(query, 'i');
+    const products = await productModel.find({
+      $or: [
+        { title: { $regex: regex } },
+        { description: { $regex: regex } },
+        { categoryName: { $regex: regex } },
+      ],
+    });
+    return { data: products, statusCode: 200 };
+  } catch (err: any) {
+    return { data: err.message, statusCode: 400 };
+  }
+};
+
 interface AddProductParams {
   productData: any;
 }

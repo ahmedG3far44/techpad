@@ -80,6 +80,20 @@ export const getAllProducts = async (): Promise<IProduct[]> => {
 };
 
 
+export const searchProducts = async (query: string): Promise<IProduct[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/product/search?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error("Search failed");
+    }
+    const products: IProduct[] = await response.json();
+    return products;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
 export const getProductsByCategoryName = async (categoryName:string) =>{
   try {
     const response = await fetch(`${BASE_URL}/product/category/${categoryName}`);
@@ -172,6 +186,17 @@ let _storeSettings = {
   currencySymbol: "$" as string,
   exchangeRate: 1 as number,
   currencyCode: "USD" as string,
+  shippingPrice: 0 as number,
+  taxPercentage: 0 as number,
+  supportEmail: "" as string,
+  supportPhone: "" as string,
+  location: "" as string,
+  facebookUrl: "" as string,
+  instagramUrl: "" as string,
+  tiktokUrl: "" as string,
+  aboutContent: "" as string,
+  privacyContent: "" as string,
+  termsContent: "" as string,
 };
 
 export function initPriceFormatter(settings: typeof _storeSettings) {

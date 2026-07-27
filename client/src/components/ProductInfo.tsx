@@ -13,6 +13,7 @@ function ProductInfo({
   description,
   categoryName,
   images,
+  thumbnail,
   stock,
   price,
   createdAt,
@@ -46,7 +47,7 @@ function ProductInfo({
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start mt-6 lg:mt-10">
       <div className="w-full lg:flex-1">
-        <ProductImage images={images} title={title} />
+        <ProductImage images={images} thumbnail={thumbnail} title={title} />
       </div>
 
       <div className="w-full lg:flex-1 flex flex-col gap-3 p-0 lg:p-4">

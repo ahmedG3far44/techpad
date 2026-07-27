@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiChevronDown } from "react-icons/fi";
 import { Category } from "./admin/CategoryListTable";
@@ -9,6 +9,7 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ categories }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const visibleCategories = categories.slice(0, 3);
   const dropdownCategories = categories.slice(3);
@@ -20,6 +21,16 @@ const Navigation: React.FC<NavigationProps> = ({ categories }) => {
       .join("-")
       .trim()}`;
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="container mx-auto px-4">
@@ -39,12 +50,9 @@ const Navigation: React.FC<NavigationProps> = ({ categories }) => {
             ))}
 
             {dropdownCategories.length > 0 && (
-              <div
-                className="relative"
-                onMouseEnter={() => setIsDropdownOpen(true)}
-                onMouseLeave={() => setIsDropdownOpen(false)}
-              >
+              <div ref={dropdownRef} className="relative">
                 <button
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center gap-1"
                   aria-haspopup="true"
                   aria-expanded={isDropdownOpen}
@@ -66,6 +74,7 @@ const Navigation: React.FC<NavigationProps> = ({ categories }) => {
                       <Link
                         key={category._id}
                         to={getCategoryUrl(category.name)}
+                        onClick={() => setIsDropdownOpen(false)}
                         className="block px-4 py-2 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
                         role="menuitem"
                       >

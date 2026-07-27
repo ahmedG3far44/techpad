@@ -42,6 +42,7 @@ function CheckoutPage() {
     getUserCart,
     createOrder,
     shippingCost,
+    taxAmount,
     pending,
   } = useCart();
   const [pendingAddress, setPending] = useState(false);
@@ -84,7 +85,7 @@ function CheckoutPage() {
   }, [token]);
 
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const finalTotal = totalAmount + shippingCost;
+  const finalTotal = totalAmount + shippingCost + taxAmount;
 
   const navigate = useNavigate();
 
@@ -269,10 +270,12 @@ function CheckoutPage() {
                       : `${handlePrice(shippingCost)}`}
                   </span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax</span>
-                  <span className="font-medium">Included</span>
-                </div>
+                {taxAmount > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>Tax</span>
+                    <span className="font-medium">{handlePrice(taxAmount)}</span>
+                  </div>
+                )}
               </div>
               <div className="flex justify-between items-center mb-6">
                 <span className="text-lg font-bold text-gray-900">Total</span>
@@ -282,9 +285,12 @@ function CheckoutPage() {
               </div>
 
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (token && selectedAddress) {
-                    createOrder({ token, address: selectedAddress });
+                    const order: any = await createOrder({ token, address: selectedAddress });
+                    if (order?._id) {
+                      navigate("/success");
+                    }
                   }
                 }}
                 disabled={!selectedAddress || cartItems.length === 0 || pending}

@@ -7,10 +7,25 @@ import {
   getAllProducts,
   getProductById,
   getProductsByCategoryName,
+  searchProducts,
   updateNewProduct,
 } from "../services/productService";
 
 const router = Router();
+
+router.get("/product/search", async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || typeof q !== 'string') {
+      res.status(400).json({ message: "Search query is required" });
+      return;
+    }
+    const result = await searchProducts({ query: q });
+    res.status(result.statusCode).json(result.data);
+  } catch (err: any) {
+    res.status(500).json(err.message);
+  }
+});
 
 router.get("/product", async (req, res) => {
   try {

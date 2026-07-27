@@ -2,11 +2,13 @@ import { useState } from "react";
 
 interface ProductImageProps {
   images: string[];
+  thumbnail?: string;
   title?: string;
 }
 
-function ProductImage({ images, title }: ProductImageProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+function ProductImage({ images, thumbnail, title }: ProductImageProps) {
+  const initialIndex = thumbnail && images.includes(thumbnail) ? images.indexOf(thumbnail) : 0;
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
 
   if (!images || images.length === 0) {
     return (
@@ -66,15 +68,15 @@ function ProductImage({ images, title }: ProductImageProps) {
       </div>
 
       {images.length > 1 && (
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-hide pt-3 sm:pt-4">
           {images.map((img, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl flex items-center cursor-pointer justify-center overflow-hidden transition-all duration-200 ${
+              className={`relative flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg flex items-center cursor-pointer justify-center overflow-hidden transition-all duration-200 ${
                 index === activeIndex
-                  ? "ring-2 ring-primary-500 ring-offset-2 scale-105 opacity-100"
-                  : "ring-1 ring-surface-200 hover:ring-surface-300 opacity-60 hover:opacity-80"
+                  ? "ring-2 ring-primary-500 ring-offset-1 shadow-sm opacity-100"
+                  : "ring-1 ring-surface-200 hover:ring-surface-300 opacity-70 hover:opacity-100"
               }`}
               aria-label={`View image ${index + 1}`}
             >

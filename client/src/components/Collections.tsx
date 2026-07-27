@@ -1,30 +1,26 @@
 import { useState } from "react";
-import image1 from "../../public/6680311.jpg";
-import image2 from "../../public/7312571.jpg";
-import image3 from "../../public/7312591.jpg";
-import image4 from "../../public/7312586.jpg";
 
 function Collections() {
   const [features] = useState([
     {
       id: 1,
       name: "MEN CLOTHES",
-      image: image1,
+      image: "/6680311.jpg",
     },
     {
       id: 2,
       name: "WOMEN CLOTHES",
-      image: image2,
+      image: "/7312571.jpg",
     },
     {
       id: 3,
       name: "PANTS",
-      image: image3,
+      image: "/7312591.jpg",
     },
     {
       id: 4,
       name: "HOODIES",
-      image: image4,
+      image: "/7312586.jpg",
     },
   ]);
   return (

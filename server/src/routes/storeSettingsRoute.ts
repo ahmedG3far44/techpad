@@ -17,7 +17,7 @@ router.get("/settings", async (req, res) => {
 
 router.put("/admin/settings", verifyToken, verifyAdmin, async (req: ExtendedRequest, res) => {
   try {
-    const { country, currencyCode, currencySymbol, exchangeRate } = req.body;
+    const { country, currencyCode, currencySymbol, exchangeRate, shippingPrice, taxPercentage, supportEmail, supportPhone, location, facebookUrl, instagramUrl, tiktokUrl, aboutContent, privacyContent, termsContent } = req.body;
     if (!country || !currencyCode || !currencySymbol || exchangeRate == null) {
       res.status(400).json({ message: "All fields are required" });
       return;
@@ -27,6 +27,17 @@ router.put("/admin/settings", verifyToken, verifyAdmin, async (req: ExtendedRequ
       currencyCode,
       currencySymbol,
       exchangeRate: parseFloat(exchangeRate),
+      shippingPrice: shippingPrice != null ? parseFloat(shippingPrice) : 0,
+      taxPercentage: taxPercentage != null ? parseFloat(taxPercentage) : 0,
+      supportEmail,
+      supportPhone,
+      location,
+      facebookUrl,
+      instagramUrl,
+      tiktokUrl,
+      aboutContent,
+      privacyContent,
+      termsContent,
     });
     res.status(result.statusCode).json(result.data);
   } catch (err: any) {

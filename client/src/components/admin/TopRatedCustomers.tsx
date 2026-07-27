@@ -58,6 +58,7 @@ function TopRatedCustomers() {
             <TopCustomerCard
               key={customer.userId}
               email={customer.email}
+              profile={customer.profile}
               orderCount={customer.orderCount}
               totalSpent={customer.totalSpent}
             />
@@ -72,17 +73,20 @@ export default TopRatedCustomers;
 
 function TopCustomerCard({
   email,
+  profile,
   totalSpent,
   orderCount,
 }: TopCustomer) {
-  const initials = email
-    ? email.charAt(0).toUpperCase()
-    : "?";
-
   return (
     <div className="w-full flex items-center gap-3 p-2.5 rounded-lg border border-surface-200 bg-white motion-safe:transition-all motion-safe:duration-150 hover:border-surface-300 hover:shadow-sm">
-      <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-        <span className="text-xs font-bold text-primary-700">{initials}</span>
+      <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {profile ? (
+          <img src={profile} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-xs font-bold text-primary-700">
+            {email ? email.charAt(0).toUpperCase() : "?"}
+          </span>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-surface-700 truncate">{email}</p>

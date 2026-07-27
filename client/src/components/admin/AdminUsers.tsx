@@ -20,6 +20,7 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
   isAdmin: boolean;
   isBlocked?: boolean;
   createdAt: string;
@@ -135,7 +136,8 @@ function AdminUsers() {
         searchQuery === "" ||
         user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase());
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.phone && user.phone.includes(searchQuery));
 
       const matchesFilter =
         filterType === "all" ||
@@ -234,6 +236,9 @@ function AdminUsers() {
                     Email
                   </th>
                   <th scope="col" className="px-5 py-3.5 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider">
+                    Phone
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider">
                     Role
                   </th>
                   <th scope="col" className="px-5 py-3.5 text-left text-xs font-semibold text-surface-600 uppercase tracking-wider">
@@ -293,6 +298,13 @@ function UserRow({ user, onDelete, onBlock }: UserRowProps) {
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
         <span className="text-sm text-surface-700">{user.email}</span>
+      </td>
+      <td className="px-5 py-4 whitespace-nowrap">
+        {user.phone ? (
+          <span className="text-sm text-surface-700">{user.phone}</span>
+        ) : (
+          <span className="text-sm text-surface-400">—</span>
+        )}
       </td>
       <td className="px-5 py-4 whitespace-nowrap">
         {user.isAdmin ? (

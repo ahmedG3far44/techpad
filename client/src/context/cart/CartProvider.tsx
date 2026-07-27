@@ -10,6 +10,7 @@ import { FC, PropsWithChildren } from "react";
 import { IAddress, IProductItem } from "../../utils/types";
 import { CartContext } from "./CartContext";
 import useAuth from "../auth/AuthContext";
+import { useCurrency } from "../currency/CurrencyContext";
 
 import toast from "react-hot-toast";
 
@@ -20,7 +21,14 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const shippingCost = 23;
+
+  const { settings } = useCurrency();
+  const shippingCost = settings.shippingPrice;
+  const taxPercentage = settings.taxPercentage;
+
+  const taxAmount = useMemo(() => {
+    return totalAmount * (taxPercentage / 100);
+  }, [totalAmount, taxPercentage]);
 
   const totalCartItems = useMemo(() => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -343,6 +351,7 @@ const CartProvider: FC<PropsWithChildren> = ({ children }) => {
         createOrder,
         totalCartItems,
         shippingCost,
+        taxAmount,
         error,
         pending,
       }}

@@ -93,6 +93,7 @@ export interface CartContextType {
   totalAmount: number;
   totalCartItems: number;
   shippingCost: number;
+  taxAmount: number;
   addItemToCart: ({
     productId,
     quantity,

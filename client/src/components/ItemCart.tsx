@@ -7,7 +7,6 @@ import useAuth from "../context/auth/AuthContext";
 import useCart from "../context/cart/CartContext";
 
 import handelDates from "../utils/handelDates";
-import noValidImage from "../../public/placeholder.png";
 
 interface ItemCart {
   productId: string;
@@ -38,6 +37,7 @@ function ItemCart({
   const { updateItemInCart, deleteOneItemFromCart, pending } = useCart();
   const [newQuantity, setNewQuantity] = useState(quantity);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const date = new Date(updatedAt);
 
   if (!token) return null;
@@ -72,211 +72,134 @@ function ItemCart({
     }
   };
 
-  const totalPrice = (price * newQuantity).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  const unitPrice = price.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
   const isOutOfStock = newQuantity > stock;
   const isAtMaxStock = newQuantity >= stock;
   const isAtMinQuantity = newQuantity <= 1;
 
   return (
     <div
-      className={`w-full flex flex-col border rounded-lg p-3 sm:p-4 bg-white shadow-sm hover:shadow-md transition-shadow ${
-        isOutOfStock ? "border-red-300 bg-red-50" : "border-zinc-200"
+      className={`w-full flex flex-col rounded-xl border bg-white transition-all duration-200 ${
+        isOutOfStock
+          ? "border-red-200 bg-red-50/50"
+          : "border-gray-200 shadow-sm hover:shadow-md"
       }`}
     >
-      <div className="w-full flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border border-zinc-200 bg-white">
+      <div className="flex flex-col sm:flex-row p-3 sm:p-4 gap-3 sm:gap-4">
+        <div className="flex-shrink-0 w-full sm:w-28 h-28 sm:h-28 rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
           <img
-            className="w-full h-full object-cover"
-            src={image || noValidImage}
-            alt={`${title} - ${description}`}
-            onError={(e) => {
-              e.currentTarget.src = noValidImage;
-            }}
+            className="w-full h-full object-contain p-2"
+            src={imgError ? "/placeholder.png" : (image || "/placeholder.png")}
+            alt={title}
+            onError={() => setImgError(true)}
           />
         </div>
 
-        <div className="flex-1 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 min-w-0 overflow-hidden">
-          <div className="flex-1 min-w-0 max-w-full overflow-hidden">
-            <h2
-              className="text-base sm:text-lg font-semibold text-zinc-900 line-clamp-2 break-words"
-              title={title}
-            >
-              {title}
-            </h2>
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-2 leading-snug" title={title}>
+                {title}
+              </h2>
 
-            {checkoutState && description && (
-              <p
-                className="text-xs sm:text-sm text-gray-600 line-clamp-2 mt-1 break-words"
-                title={description}
-              >
-                {description}
-              </p>
-            )}
-
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              {categoryName && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                  {categoryName}
-                </span>
+              {checkoutState && description && (
+                <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1 leading-relaxed" title={description}>
+                  {description}
+                </p>
               )}
-              <span className="text-xs text-zinc-500">{handelDates(date)}</span>
-            </div>
 
-            <div className="flex sm:hidden items-baseline gap-2 mt-2">
-              <span className="text-sm text-zinc-600">
-                {handlePrice(unitPrice)} × {newQuantity}
-              </span>
-              <span className="text-base font-semibold text-zinc-900">
-                = {handlePrice(totalPrice)}
-              </span>
-            </div>
-
-            {isOutOfStock && (
-              <div className="mt-2 text-xs text-red-600 font-medium">
-                Only {stock} items available
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                {categoryName && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                    {categoryName}
+                  </span>
+                )}
+                <span className="text-[11px] text-gray-400">{handelDates(date)}</span>
               </div>
-            )}
+
+              {isOutOfStock && (
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-50 border border-red-200 text-xs font-medium text-red-600">
+                  Only {stock} available
+                </div>
+              )}
+            </div>
+
+            <div className="hidden sm:block text-right flex-shrink-0">
+              <div className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                {handlePrice(String(price * newQuantity))}
+              </div>
+              <div className="text-[11px] text-gray-400 mt-0.5 whitespace-nowrap">
+                ${price.toFixed(2)} × {newQuantity}
+              </div>
+            </div>
           </div>
+
           {checkoutState && (
-            <div className="hidden sm:flex flex-col items-end gap-2 flex-shrink-0">
-              <div className="flex items-center gap-2 bg-zinc-50 rounded-lg p-1 border border-zinc-200">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={handleDecrement}
                   disabled={pending || isAtMinQuantity}
-                  className="w-8 h-8 flex items-center justify-center rounded-md bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors flex-shrink-0 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                   aria-label="Decrease quantity"
-                  title="Decrease quantity"
                 >
                   {pending ? (
-                    <BiLoader size={14} className="animate-spin" />
+                    <BiLoader size={13} className="animate-spin" />
                   ) : (
-                    <FiMinus size={14} />
+                    <FiMinus size={13} />
                   )}
                 </button>
 
-                <span className="w-10 text-center text-sm font-semibold text-zinc-900 flex-shrink-0">
+                <span className="w-9 text-center text-sm font-semibold text-gray-900 tabular-nums">
                   {newQuantity}
                 </span>
 
                 <button
                   onClick={handleIncrement}
                   disabled={pending || isAtMaxStock}
-                  className="w-8 h-8 flex items-center justify-center rounded-md bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-100 hover:border-zinc-400 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors flex-shrink-0 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
                   aria-label="Increase quantity"
-                  title={
-                    isAtMaxStock
-                      ? `Maximum stock: ${stock}`
-                      : "Increase quantity"
-                  }
                 >
                   {pending ? (
-                    <BiLoader size={14} className="animate-spin" />
+                    <BiLoader size={13} className="animate-spin" />
                   ) : (
-                    <FiPlus size={14} />
+                    <FiPlus size={13} />
+                  )}
+                </button>
+
+                {stock > 0 && newQuantity < stock && (
+                  <span className="text-[11px] text-gray-400 ml-1.5 hidden sm:inline">
+                    {stock - newQuantity} left
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="sm:hidden text-sm font-semibold text-gray-900">
+                  {handlePrice(String(price * newQuantity))}
+                </span>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting || pending}
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  aria-label="Remove from cart"
+                >
+                  {isDeleting ? (
+                    <>
+                      <BiLoader size={13} className="animate-spin" />
+                      <span>Removing</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiTrash2 size={13} />
+                      <span className="hidden xs:inline">Remove</span>
+                    </>
                   )}
                 </button>
               </div>
-
-              {stock > 0 && newQuantity < stock && (
-                <span className="text-xs text-zinc-500 whitespace-nowrap">
-                  {stock - newQuantity} left
-                </span>
-              )}
             </div>
           )}
-          <div className="hidden sm:flex flex-col items-end flex-shrink-0 w-[100px]">
-            <div className="text-xs text-zinc-500 mb-1 whitespace-nowrap">
-              {unitPrice} × {newQuantity}
-            </div>
-            <div className="text-base sm:text-lg font-semibold text-zinc-900 whitespace-nowrap">
-              {handlePrice(totalPrice)}
-            </div>
-          </div>
         </div>
       </div>
-      {checkoutState && (
-        <div className="flex sm:hidden items-center justify-between mt-3 pt-3 border-t border-zinc-200">
-          <div className="flex items-center gap-2 bg-zinc-50 rounded-lg p-1 border border-zinc-200">
-            <button
-              onClick={handleDecrement}
-              disabled={pending || isAtMinQuantity}
-              className="w-9 h-9 flex items-center justify-center rounded-md bg-white border border-zinc-300 text-zinc-700 active:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              aria-label="Decrease quantity"
-            >
-              {pending ? (
-                <BiLoader size={16} className="animate-spin" />
-              ) : (
-                <FiMinus size={16} />
-              )}
-            </button>
-
-            <span className="w-12 text-center text-base font-semibold text-zinc-900">
-              {newQuantity}
-            </span>
-
-            <button
-              onClick={handleIncrement}
-              disabled={pending || isAtMaxStock}
-              className="w-9 h-9 flex items-center justify-center rounded-md bg-white border border-zinc-300 text-zinc-700 active:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              aria-label="Increase quantity"
-            >
-              {pending ? (
-                <BiLoader size={16} className="animate-spin" />
-              ) : (
-                <FiPlus size={16} />
-              )}
-            </button>
-          </div>
-
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting || pending}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
-            aria-label="Remove item from cart"
-          >
-            {isDeleting ? (
-              <>
-                <BiLoader size={16} className="animate-spin" />
-                <span>Removing...</span>
-              </>
-            ) : (
-              <>
-                <FiTrash2 size={16} />
-                <span>Remove</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-      {checkoutState && (
-        <button
-          onClick={handleDelete}
-          disabled={isDeleting || pending}
-          className="hidden sm:flex items-center gap-1.5 mt-3 pt-3 border-t border-zinc-200 text-sm font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          aria-label="Remove item from cart"
-        >
-          {isDeleting ? (
-            <>
-              <BiLoader size={14} className="animate-spin" />
-              <span>Removing item...</span>
-            </>
-          ) : (
-            <>
-              <FiTrash2 size={14} />
-              <span>Remove from cart</span>
-            </>
-          )}
-        </button>
-      )}
     </div>
   );
 }

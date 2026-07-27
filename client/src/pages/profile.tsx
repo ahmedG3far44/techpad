@@ -23,128 +23,83 @@ const BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
 const labelOptions: IAddress["label"][] = ["Home", "Office", "Other"];
 
-interface AddressFormProps {
-  address: IAddress;
-  onChange: (a: IAddress) => void;
+function formatAddr(a: IAddress): string {
+  const parts = [
+    a.building && `Building ${a.building}`,
+    a.floor && `Floor ${a.floor}`,
+    a.apartment && `Apt ${a.apartment}`,
+    a.street,
+    a.area,
+    a.state,
+    a.country,
+  ].filter(Boolean);
+  return parts.join(", ");
 }
 
-function AddressForm({ address, onChange }: AddressFormProps) {
+function AddressForm({ address, onChange }: { address: IAddress; onChange: (a: IAddress) => void }) {
   const update = (field: keyof IAddress, value: string | boolean) =>
     onChange({ ...address, [field]: value });
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Label
-          </label>
-          <select
-            value={address.label}
-            onChange={(e) => update("label", e.target.value)}
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-          >
-            {labelOptions.map((l) => (
-              <option key={l} value={l}>{l}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Country
-          </label>
-          <input
-            type="text"
-            value={address.country}
-            onChange={(e) => update("country", e.target.value)}
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            State / City
-          </label>
-          <input
-            type="text"
-            value={address.state}
-            onChange={(e) => update("state", e.target.value)}
-            placeholder="e.g. Cairo"
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Area / District
-          </label>
-          <input
-            type="text"
-            value={address.area}
-            onChange={(e) => update("area", e.target.value)}
-            placeholder="e.g. Maadi"
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
+        {([
+          ["Label", "label", "select"],
+          ["Country", "country", "text"],
+          ["State / City", "state", "text"],
+          ["Area / District", "area", "text"],
+        ] as const).map(([label, field]) => (
+          <div key={field}>
+            <label className="block text-xs font-medium text-surface-500 mb-1">{label}</label>
+            {field === "label" ? (
+              <select
+                value={address.label}
+                onChange={(e) => update(field, e.target.value)}
+                className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-surface-900"
+              >
+                {labelOptions.map((l) => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={address[field] as string}
+                onChange={(e) => update(field, e.target.value)}
+                placeholder={field === "state" ? "e.g. Cairo" : field === "area" ? "e.g. Maadi" : ""}
+                className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-surface-900 placeholder-surface-400"
+              />
+            )}
+          </div>
+        ))}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Street Name
-          </label>
-          <input
-            type="text"
-            value={address.street}
-            onChange={(e) => update("street", e.target.value)}
-            placeholder="Street name"
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Building
-          </label>
-          <input
-            type="text"
-            value={address.building}
-            onChange={(e) => update("building", e.target.value)}
-            placeholder="Building / Villa no."
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Floor
-          </label>
-          <input
-            type="text"
-            value={address.floor}
-            onChange={(e) => update("floor", e.target.value)}
-            placeholder="Floor number"
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-surface-600 mb-1">
-            Apartment / Suite
-          </label>
-          <input
-            type="text"
-            value={address.apartment}
-            onChange={(e) => update("apartment", e.target.value)}
-            placeholder="Apt / Suite no."
-            className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
+        {([
+          ["Street Name", "street"],
+          ["Building", "building"],
+          ["Floor", "floor"],
+          ["Apartment", "apartment"],
+        ] as const).map(([label, field]) => (
+          <div key={field}>
+            <label className="block text-xs font-medium text-surface-500 mb-1">{label}</label>
+            <input
+              type="text"
+              value={address[field] as string}
+              onChange={(e) => update(field, e.target.value)}
+              placeholder={field === "street" ? "Street name" : field === "building" ? "Building / Villa no." : field === "floor" ? "Floor number" : "Apt / Suite no."}
+              className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-surface-900 placeholder-surface-400"
+            />
+          </div>
+        ))}
       </div>
       <div>
-        <label className="block text-xs font-medium text-surface-600 mb-1">
-          Phone for this address (optional)
-        </label>
+        <label className="block text-xs font-medium text-surface-500 mb-1">Phone (optional)</label>
         <input
           type="tel"
           value={address.phone || ""}
           onChange={(e) => update("phone", e.target.value)}
           placeholder="Delivery contact number"
-          className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 max-w-xs"
+          className="w-full px-2.5 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 text-surface-900 placeholder-surface-400 max-w-xs"
         />
       </div>
     </div>
@@ -216,15 +171,19 @@ function ProfilePage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setTempProfile({ ...tempProfile, profileImage: reader.result });
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be smaller than 5MB");
+      e.target.value = "";
+      return;
     }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setTempProfile({ ...tempProfile, profileImage: reader.result });
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const toggleProfileEdit = () => {
@@ -370,24 +329,11 @@ function ProfilePage() {
     }
   };
 
-  const formatAddr = (a: IAddress): string => {
-    const parts = [
-      a.building && `Building ${a.building}`,
-      a.floor && `Floor ${a.floor}`,
-      a.apartment && `Apt ${a.apartment}`,
-      a.street,
-      a.area,
-      a.state,
-      a.country,
-    ].filter(Boolean);
-    return parts.join(", ");
-  };
-
   if (loading) {
     return (
       <Container>
         <div className="flex justify-center items-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-surface-200 border-t-primary-600" />
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-surface-300 border-t-primary-600" />
         </div>
       </Container>
     );
@@ -396,315 +342,242 @@ function ProfilePage() {
   return (
     <Container>
       <SEO title="My Profile" description="Manage your profile and addresses." />
-      <div className="min-h-screen py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl border border-surface-200 overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-surface-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-surface-900">
-                  Profile Information
-                </h2>
-                <button
-                  onClick={toggleProfileEdit}
-                  className="flex items-center text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  {isEditingProfile ? (
-                    <>
-                      <FaX className="w-3 h-3 mr-1.5" /> Cancel
-                    </>
-                  ) : (
-                    <>
-                      <FaEdit className="w-3 h-3 mr-1.5" /> Edit Profile
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+      <div className="py-8 sm:py-10">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+            <FaUser className="w-5 h-5 text-primary-600" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-surface-900">My Profile</h1>
+            <p className="text-sm text-surface-500 mt-0.5">Manage your personal information and saved addresses</p>
+          </div>
+        </div>
 
-            <div className="p-6 flex flex-col md:flex-row gap-6">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-28 h-28 rounded-full bg-surface-100 flex items-center justify-center overflow-hidden border-2 border-surface-200">
-                  {(isEditingProfile
-                    ? tempProfile.profileImage
-                    : profile.profileImage) ? (
-                    <img
-                      src={
-                        isEditingProfile
-                          ? tempProfile.profileImage
-                          : profile.profileImage
-                      }
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FaUser className="w-12 h-12 text-surface-400" />
-                  )}
-                </div>
-                {isEditingProfile && (
-                  <label className="flex items-center gap-2 px-4 py-2 bg-primary-600 rounded-xl text-white text-sm cursor-pointer hover:bg-primary-700 transition-colors">
-                    <FaCamera className="w-4 h-4" />
-                    <span>Upload Photo</span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                    />
-                  </label>
-                )}
-              </div>
-
-              <div className="flex-1">
+        <div className="bg-white rounded-xl border border-surface-200 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-surface-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-surface-900">Personal Information</h2>
+              <button
+                onClick={toggleProfileEdit}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+              >
                 {isEditingProfile ? (
-                  <div aria-label="Profile form" className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-surface-700 mb-1">
-                          First Name
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          value={tempProfile.firstName}
-                          onChange={(e) =>
-                            setTempProfile({ ...tempProfile, firstName: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-surface-700 mb-1">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          value={tempProfile.lastName}
-                          onChange={(e) =>
-                            setTempProfile({ ...tempProfile, lastName: e.target.value })
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-surface-50"
-                        value={tempProfile.email}
-                        disabled
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-surface-700 mb-1">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        value={tempProfile.phone}
-                        onChange={(e) =>
-                          setTempProfile({ ...tempProfile, phone: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="flex justify-end pt-2">
-                      <button
-                        onClick={saveProfileChanges}
-                        disabled={saving}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 transition-colors font-medium"
-                      >
-                        {saving ? (
-                          <span className="flex items-center gap-2">
-                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                            Saving...
-                          </span>
-                        ) : (
-                          <>
-                            <FaSave className="w-4 h-4" /> Save Changes
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                  <><FaX className="w-3 h-3" /> Cancel</>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <FaUser className="w-5 h-5 text-surface-400" />
-                      <div>
-                        <p className="text-xs text-surface-500">Full Name</p>
-                        <p className="font-medium text-surface-900">
-                          {profile.firstName} {profile.lastName}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <FaMailBulk className="w-5 h-5 text-surface-400" />
-                      <div>
-                        <p className="text-xs text-surface-500">Email</p>
-                        <p className="font-medium text-surface-900">
-                          {profile.email}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <FaPhone className="w-5 h-5 text-surface-400" />
-                      <div>
-                        <p className="text-xs text-surface-500">Phone</p>
-                        <p className="font-medium text-surface-900">
-                          {profile.phone || "Not set"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <><FaEdit className="w-3.5 h-3.5" /> Edit</>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-6 flex flex-col sm:flex-row gap-6">
+            <div className="flex flex-col items-center gap-3 flex-shrink-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-surface-100 flex items-center justify-center overflow-hidden border-2 border-surface-200">
+                {(isEditingProfile ? tempProfile.profileImage : profile.profileImage) ? (
+                  <img
+                    src={isEditingProfile ? tempProfile.profileImage : profile.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FaUser className="w-10 h-10 text-surface-400" />
                 )}
               </div>
+              {isEditingProfile && (
+                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-medium cursor-pointer hover:bg-primary-700 transition-colors">
+                  <FaCamera className="w-3.5 h-3.5" />
+                  {tempProfile.profileImage ? "Change Image" : "Upload Image"}
+                  <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                </label>
+              )}
             </div>
 
-            <div role="region" aria-label="Saved addresses" className="p-6 border-t border-surface-200">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-surface-900">
-                  Addresses
-                </h2>
-                <button
-                  onClick={() => setAdding(!adding)}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  {adding ? "Cancel" : "Add Address"}
-                </button>
-              </div>
-
-              {adding && (
-                <div className="mb-6 p-4 border border-surface-200 rounded-xl bg-surface-50">
-                  <h3 className="text-sm font-medium text-surface-900 mb-4">
-                    New Address
-                  </h3>
-                  <AddressForm address={newAddress} onChange={setNewAddress} />
-                  <div className="flex justify-end gap-3 mt-4">
+            <div className="flex-1 min-w-0">
+              {isEditingProfile ? (
+                <div className="space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-xs font-medium text-surface-500 mb-1">First Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-surface-900"
+                        value={tempProfile.firstName}
+                        onChange={(e) => setTempProfile({ ...tempProfile, firstName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-surface-500 mb-1">Last Name</label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-surface-900"
+                        value={tempProfile.lastName}
+                        onChange={(e) => setTempProfile({ ...tempProfile, lastName: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-surface-500 mb-1">Email</label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 border border-surface-300 rounded-lg text-sm bg-surface-50 text-surface-500 cursor-not-allowed"
+                      value={tempProfile.email}
+                      disabled
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-surface-500 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      className="w-full px-3 py-2 border border-surface-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-surface-900"
+                      value={tempProfile.phone}
+                      onChange={(e) => setTempProfile({ ...tempProfile, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex justify-end pt-1">
                     <button
-                      onClick={() => setAdding(false)}
-                      className="px-4 py-2 text-sm font-medium text-surface-600 hover:text-surface-800"
+                      onClick={saveProfileChanges}
+                      disabled={saving}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={saveNewAddress}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium"
-                    >
-                      Save Address
+                      {saving ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Saving...
+                        </span>
+                      ) : (
+                        <><FaSave className="w-3.5 h-3.5" /> Save Changes</>
+                      )}
                     </button>
                   </div>
                 </div>
-              )}
-
-              {addresses.length === 0 && !adding && (
-                <div className="text-center py-8 text-surface-500">
-                  <FaMapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No addresses saved yet</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { icon: FaUser, label: "Full Name", value: `${profile.firstName} ${profile.lastName}` },
+                    { icon: FaMailBulk, label: "Email", value: profile.email },
+                    { icon: FaPhone, label: "Phone", value: profile.phone || "Not set" },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg bg-surface-50">
+                      <item.icon className="w-4 h-4 text-surface-400 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-surface-500">{item.label}</p>
+                        <p className="text-sm font-medium text-surface-900 truncate">{item.value}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
 
-              <div role="list" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-8 bg-white rounded-xl border border-surface-200 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-surface-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-surface-900">Saved Addresses</h2>
+                <p className="text-xs text-surface-500 mt-0.5">{addresses.length} {addresses.length === 1 ? "address" : "addresses"} on file</p>
+              </div>
+              <button
+                onClick={() => setAdding(!adding)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors"
+              >
+                {adding ? <><FaX className="w-3 h-3" /> Cancel</> : "+ Add Address"}
+              </button>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-6">
+            {adding && (
+              <div className="mb-6 p-4 border border-surface-200 rounded-xl bg-surface-50">
+                <h3 className="text-sm font-medium text-surface-900 mb-4">New Address</h3>
+                <AddressForm address={newAddress} onChange={setNewAddress} />
+                <div className="flex justify-end gap-3 mt-4">
+                  <button onClick={() => setAdding(false)} className="px-4 py-2 text-sm font-medium text-surface-600 hover:text-surface-800 transition-colors">Cancel</button>
+                  <button onClick={saveNewAddress} className="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Save Address</button>
+                </div>
+              </div>
+            )}
+
+            {addresses.length === 0 && !adding ? (
+              <div className="text-center py-12">
+                <div className="w-12 h-12 rounded-xl bg-surface-100 flex items-center justify-center mx-auto mb-4">
+                  <FaMapPin className="w-5 h-5 text-surface-400" />
+                </div>
+                <h3 className="text-sm font-semibold text-surface-800 mb-1">No addresses yet</h3>
+                <p className="text-xs text-surface-500">Add a shipping address to get started</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {addresses.map((addr, index) => (
                   <div
-                    role="listitem"
                     key={index}
-                    className={`border rounded-xl p-4 transition-colors ${
+                    className={`rounded-xl border p-4 transition-all ${
                       addr.isDefault
-                        ? "border-primary-300 bg-primary-50/50"
-                        : "border-surface-200 hover:border-surface-300"
+                        ? "border-primary-300 bg-primary-50"
+                        : "border-surface-200 hover:border-surface-300 hover:shadow-sm"
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            addr.label === "Home"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : addr.label === "Office"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-surface-100 text-surface-600"
-                          }`}
-                        >
-                          <FaMapPin className="w-3 h-3" />
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          addr.label === "Home" ? "bg-emerald-100 text-emerald-700" :
+                          addr.label === "Office" ? "bg-blue-100 text-blue-700" :
+                          "bg-surface-100 text-surface-600"
+                        }`}>
+                          <FaMapPin className="w-2.5 h-2.5" />
                           {addr.label}
                         </span>
                         {addr.isDefault && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-                            <FaStar className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                            <FaStar className="w-2.5 h-2.5" />
                             Default
                           </span>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1.5">
                         {!addr.isDefault && (
-                          <button
-                            onClick={() => setAsDefault(index)}
-                            className="text-amber-500 hover:text-amber-600"
-                            title="Set as default"
-                          >
-                            <FaRegStar className="w-4 h-4" />
+                          <button onClick={() => setAsDefault(index)} className="p-1.5 text-surface-400 hover:text-amber-500 rounded-lg hover:bg-surface-100 transition-colors" title="Set as default">
+                            <FaRegStar className="w-3.5 h-3.5" />
                           </button>
                         )}
                         {editingIndex === index ? (
-                          <button
-                            onClick={() => cancelEditAddress()}
-                            className="text-surface-400 hover:text-surface-600"
-                          >
-                            <FaX className="w-4 h-4" />
+                          <button onClick={() => cancelEditAddress()} className="p-1.5 text-surface-400 hover:text-surface-600 rounded-lg hover:bg-surface-100 transition-colors">
+                            <FaX className="w-3.5 h-3.5" />
                           </button>
                         ) : (
-                          <button
-                            onClick={() => startEditAddress(index)}
-                            className="text-primary-600 hover:text-primary-700"
-                          >
-                            <FaEdit className="w-4 h-4" />
+                          <button onClick={() => startEditAddress(index)} className="p-1.5 text-surface-400 hover:text-primary-600 rounded-lg hover:bg-surface-100 transition-colors">
+                            <FaEdit className="w-3.5 h-3.5" />
                           </button>
                         )}
-                        <button
-                          onClick={() => removeAddress(index)}
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <FaTrash className="w-4 h-4" />
+                        <button onClick={() => removeAddress(index)} className="p-1.5 text-surface-400 hover:text-red-500 rounded-lg hover:bg-surface-100 transition-colors">
+                          <FaTrash className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
 
                     {editingIndex === index ? (
                       <>
-                        <AddressForm
-                          address={editAddress}
-                          onChange={setEditAddress}
-                        />
-                        <div className="flex justify-end gap-3 mt-4">
-                          <button
-                            onClick={() => saveEditAddress(index)}
-                            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium"
-                          >
-                            <FaSave className="w-4 h-4" /> Save
+                        <AddressForm address={editAddress} onChange={setEditAddress} />
+                        <div className="flex justify-end mt-4">
+                          <button onClick={() => saveEditAddress(index)} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                            <FaSave className="w-3 h-3" /> Save
                           </button>
                         </div>
                       </>
                     ) : (
                       <div className="space-y-1">
-                        <p className="text-sm text-surface-800 leading-relaxed">
-                          {formatAddr(addr)}
-                        </p>
-                        {addr.phone && (
-                          <p className="text-xs text-surface-400">
-                            Phone: {addr.phone}
-                          </p>
-                        )}
+                        <p className="text-sm text-surface-800 leading-relaxed">{formatAddr(addr)}</p>
+                        {addr.phone && <p className="text-xs text-surface-400">Phone: {addr.phone}</p>}
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

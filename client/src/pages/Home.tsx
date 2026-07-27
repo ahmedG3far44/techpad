@@ -7,7 +7,7 @@ import Hero from "../components/landing/Hero";
 
 function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <SEO title="Home" description="Premium PC accessories and tech peripherals. Shop keyboards, mice, headsets, monitors, and more." />
       <Header />
       <main>

@@ -12,6 +12,10 @@ import CheckoutPage from "./pages/checkout";
 import AddAddress from "./pages/add-address";
 import CategoryPage from "./pages/categories";
 import SuccessOrder from "./pages/success-order";
+import SearchResults from "./pages/search";
+import AboutPage from "./pages/about";
+import PrivacyPage from "./pages/privacy";
+import TermsPage from "./pages/terms";
 import Insights from "./components/admin/Insights";
 import AdminRoutes from "./components/AdminRoutes";
 import ProductDetails from "./pages/product-details";
@@ -26,8 +30,8 @@ import CategoryProvider from "./context/category/CategoryProvider";
 import AdminSettings from "./components/admin/AdminSettings";
 
 import { Toaster } from "react-hot-toast";
-import { Analytics } from "@vercel/analytics/react"
-import { SpeedInsights } from "@vercel/speed-insights/react"
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CurrencyProvider } from "./context/currency/CurrencyContext";
@@ -50,12 +54,16 @@ function App() {
             <Routes>
               <Route index path="/" element={<Home />} />
               <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/search" element={<SearchResults />} />
               <Route
                 path="/category/:categoryName"
                 element={<CategoryPage />}
               />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route element={<ProtectedRoutes />}>
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/cart" element={<CartPage />} />

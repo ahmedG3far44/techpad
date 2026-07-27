@@ -50,7 +50,7 @@ function OrdersHistory() {
   }, [token]);
 
   return (
-    <div className="py-6 sm:py-10 w-full">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       <SEO title="Order History" description="View your order history." />
       <div className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">

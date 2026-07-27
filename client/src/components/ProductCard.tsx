@@ -8,8 +8,9 @@ import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import useAuth from "../context/auth/AuthContext";
 import useCart from "../context/cart/CartContext";
 
-function ImageSlider({ images, title }: { images: string[]; title?: string }) {
+function ImageSlider({ images, thumbnail, title }: { images: string[]; thumbnail?: string; title?: string }) {
   const [active, setActive] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const nextImage = () => {
     setActive((prev) => (prev + 1) % images.length);
@@ -19,20 +20,44 @@ function ImageSlider({ images, title }: { images: string[]; title?: string }) {
     setActive((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setActive(0);
+  };
+
+  const mainImage = thumbnail && images.includes(thumbnail) ? thumbnail : images[0];
+
   return (
-    <div className="relative w-full aspect-square rounded-t-xl overflow-hidden bg-surface-100">
+    <div
+      className="relative w-full aspect-square rounded-t-xl overflow-hidden bg-surface-100"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <img
-        src={images[active] || "/placeholder.svg"}
-        alt={title ? `${title} - image ${active + 1} of ${images.length}` : `Product image ${active + 1} of ${images.length}`}
+        src={mainImage || "/placeholder.svg"}
+        alt={title ? `${title} - image 1 of ${images.length}` : `Product image 1 of ${images.length}`}
         loading="lazy"
-        className="w-full h-full object-contain p-4 motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover/card:scale-110"
+        className={`w-full h-full object-contain p-4 motion-safe:transition-all motion-safe:duration-500 ${
+          isHovered ? "scale-100" : "motion-safe:group-hover/card:scale-110"
+        }`}
       />
 
-      {images.length > 1 && (
+      {isHovered && images.length > 1 && (
         <>
+          <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+          <img
+            src={images[active] || "/placeholder.svg"}
+            alt={title ? `${title} - image ${active + 1} of ${images.length}` : `Product image ${active + 1} of ${images.length}`}
+            className="absolute inset-0 w-full h-full object-contain p-4 motion-safe:transition-opacity motion-safe:duration-300"
+          />
+
           <button
             onClick={prevImage}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 motion-safe:transition-all motion-safe:duration-200 shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center motion-safe:animate-fadeIn shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 z-10"
             aria-label="Previous image"
           >
             <BiLeftArrowAlt size={14} className="text-surface-700" aria-hidden="true" />
@@ -40,13 +65,13 @@ function ImageSlider({ images, title }: { images: string[]; title?: string }) {
 
           <button
             onClick={nextImage}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center opacity-0 group-hover/card:opacity-100 motion-safe:transition-all motion-safe:duration-200 shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center motion-safe:animate-fadeIn shadow-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 z-10"
             aria-label="Next image"
           >
             <BiRightArrowAlt size={14} className="text-surface-700" aria-hidden="true" />
           </button>
 
-          <div aria-live="polite" aria-atomic="true" className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+          <div aria-live="polite" aria-atomic="true" className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
             {images.map((_, i) => (
               <button
                 key={i}
@@ -67,7 +92,7 @@ function ImageSlider({ images, title }: { images: string[]; title?: string }) {
 }
 
 function ProductCard(product: IProduct) {
-  const { _id, title, images, price, stock } = product;
+  const { _id, title, images, thumbnail, price, stock } = product;
   const isOutOfStock = stock === 0;
   const isLowStock = stock > 0 && stock <= 10;
 
@@ -92,7 +117,7 @@ function ProductCard(product: IProduct) {
   return (
     <article role="group" aria-label={title} className="group/card relative flex flex-col h-full bg-white rounded-xl border border-surface-200 motion-safe:transition-all motion-safe:duration-300 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-500/5">
       <div className="relative">
-        <ImageSlider images={images} title={title} />
+        <ImageSlider images={images} thumbnail={thumbnail} title={title} />
 
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-t-xl">

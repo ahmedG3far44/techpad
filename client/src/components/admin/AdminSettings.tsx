@@ -43,6 +43,17 @@ function AdminSettings() {
   const [currencyCode, setCurrencyCode] = useState("");
   const [currencySymbol, setCurrencySymbol] = useState("");
   const [exchangeRate, setExchangeRate] = useState("1");
+  const [shippingPrice, setShippingPrice] = useState("0");
+  const [taxPercentage, setTaxPercentage] = useState("0");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportPhone, setSupportPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
+  const [tiktokUrl, setTiktokUrl] = useState("");
+  const [aboutContent, setAboutContent] = useState("");
+  const [privacyContent, setPrivacyContent] = useState("");
+  const [termsContent, setTermsContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -54,6 +65,17 @@ function AdminSettings() {
     setCurrencyCode(settings.currencyCode);
     setCurrencySymbol(settings.currencySymbol);
     setExchangeRate(settings.exchangeRate.toString());
+    setShippingPrice(settings.shippingPrice.toString());
+    setTaxPercentage(settings.taxPercentage.toString());
+    setSupportEmail(settings.supportEmail || "");
+    setSupportPhone(settings.supportPhone || "");
+    setLocation(settings.location || "");
+    setFacebookUrl(settings.facebookUrl || "");
+    setInstagramUrl(settings.instagramUrl || "");
+    setTiktokUrl(settings.tiktokUrl || "");
+    setAboutContent(settings.aboutContent || "");
+    setPrivacyContent(settings.privacyContent || "");
+    setTermsContent(settings.termsContent || "");
   }, [settings]);
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -84,7 +106,23 @@ function AdminSettings() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ country, currencyCode, currencySymbol, exchangeRate: rate }),
+        body: JSON.stringify({
+          country,
+          currencyCode,
+          currencySymbol,
+          exchangeRate: rate,
+          shippingPrice: parseFloat(shippingPrice) || 0,
+          taxPercentage: parseFloat(taxPercentage) || 0,
+          supportEmail,
+          supportPhone,
+          location,
+          facebookUrl,
+          instagramUrl,
+          tiktokUrl,
+          aboutContent,
+          privacyContent,
+          termsContent,
+        }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -159,6 +197,38 @@ function AdminSettings() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Shipping Price</label>
+              <input
+                type="number"
+                value={shippingPrice}
+                onChange={(e) => setShippingPrice(e.target.value)}
+                disabled={loading}
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                aria-label="Shipping price"
+                className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent motion-safe:transition-shadow motion-safe:duration-150 disabled:bg-surface-50 disabled:text-surface-400"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Tax Percentage (%)</label>
+              <input
+                type="number"
+                value={taxPercentage}
+                onChange={(e) => setTaxPercentage(e.target.value)}
+                disabled={loading}
+                min="0"
+                max="100"
+                step="0.1"
+                placeholder="0"
+                aria-label="Tax percentage"
+                className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent motion-safe:transition-shadow motion-safe:duration-150 disabled:bg-surface-50 disabled:text-surface-400"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
               <label className="block text-sm font-medium text-surface-700 mb-1.5">Currency Code</label>
               <input
                 type="text"
@@ -211,29 +281,101 @@ function AdminSettings() {
                 ))}
               </div>
               <p className="text-xs text-surface-400 mt-2">Shows how prices will appear to customers. Update the exchange rate to match current market rates.</p>
+              <div className="flex flex-wrap gap-4 mt-2 pt-3 border-t border-surface-200">
+                <span className="text-xs text-surface-500">Shipping: <strong>{currencySymbol}{(parseFloat(shippingPrice) || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong></span>
+                <span className="text-xs text-surface-500">Tax: <strong>{(parseFloat(taxPercentage) || 0)}%</strong></span>
+              </div>
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-2 border-t border-surface-200">
-            <button
-              onClick={handleSave}
-              disabled={loading || !country}
-              className="px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 active:bg-primary-800 disabled:bg-surface-300 disabled:cursor-not-allowed motion-safe:transition-all motion-safe:duration-150 shadow-sm hover:shadow disabled:shadow-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center gap-2"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Saving...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <FiSave className="w-4 h-4" />
-                  Save Settings
-                </span>
-              )}
-            </button>
+        </div>
+      </div>
+
+      <div className="mt-6 bg-white rounded-xl border border-surface-200 overflow-hidden">
+        <div className="border-b border-surface-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-surface-900">Contact Info</h2>
+          <p className="text-sm text-surface-500 mt-0.5">Contact details displayed in the footer.</p>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Support Email</label>
+              <input type="email" value={supportEmail} onChange={(e) => setSupportEmail(e.target.value)} disabled={loading} placeholder="support@example.com" className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Support Phone</label>
+              <input type="tel" value={supportPhone} onChange={(e) => setSupportPhone(e.target.value)} disabled={loading} placeholder="+1 (555) 123-4567" className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Location</label>
+              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} disabled={loading} placeholder="123 Tech Street, City" className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 bg-white rounded-xl border border-surface-200 overflow-hidden">
+        <div className="border-b border-surface-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-surface-900">Social Links</h2>
+          <p className="text-sm text-surface-500 mt-0.5">Social media URLs shown in the footer.</p>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Facebook URL</label>
+              <input type="url" value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} disabled={loading} placeholder="https://facebook.com/..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">Instagram URL</label>
+              <input type="url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} disabled={loading} placeholder="https://instagram.com/..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1.5">TikTok URL</label>
+              <input type="url" value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} disabled={loading} placeholder="https://tiktok.com/..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 bg-white rounded-xl border border-surface-200 overflow-hidden">
+        <div className="border-b border-surface-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-surface-900">Page Content</h2>
+          <p className="text-sm text-surface-500 mt-0.5">Content for the About, Privacy Policy, and Terms & Conditions pages.</p>
+        </div>
+        <div className="p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">About Us</label>
+            <textarea value={aboutContent} onChange={(e) => setAboutContent(e.target.value)} disabled={loading} rows={5} placeholder="Write about your store..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400 resize-y" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Privacy Policy</label>
+            <textarea value={privacyContent} onChange={(e) => setPrivacyContent(e.target.value)} disabled={loading} rows={5} placeholder="Write your privacy policy..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400 resize-y" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-surface-700 mb-1.5">Terms & Conditions</label>
+            <textarea value={termsContent} onChange={(e) => setTermsContent(e.target.value)} disabled={loading} rows={5} placeholder="Write your terms and conditions..." className="w-full px-3.5 py-2.5 border border-surface-300 rounded-lg text-sm text-surface-800 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-50 disabled:text-surface-400 resize-y" />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-3 mt-6">
+        <button
+          onClick={handleSave}
+          disabled={loading || !country}
+          className="px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 active:bg-primary-800 disabled:bg-surface-300 disabled:cursor-not-allowed motion-safe:transition-all motion-safe:duration-150 shadow-sm hover:shadow disabled:shadow-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center gap-2"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Saving...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <FiSave className="w-4 h-4" />
+              Save Settings
+            </span>
+          )}
+        </button>
       </div>
     </div>
   );

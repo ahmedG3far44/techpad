@@ -5,17 +5,23 @@ import { User } from "../../utils/types";
 
 const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
 
-  const [user, setUser] = useState<User | null>(
-    JSON.parse(window.localStorage.getItem("user")!)
-  );
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const stored = window.localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [token, setToken] = useState<string | null>(
     window.localStorage.getItem("token")
   );
 
-  const [isAuthenticated, setAuthenticated] = useState<boolean>(
-    JSON.parse(window.localStorage.getItem("isAuthenticated")!)
-  );
+  const [isAuthenticated, setAuthenticated] = useState<boolean>(() => {
+    const stored = window.localStorage.getItem("isAuthenticated");
+    return stored === "true";
+  });
 
   const logUser = ({ user, token }: { user: User; token: string }) => {
     setToken(token);

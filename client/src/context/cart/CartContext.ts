@@ -12,6 +12,7 @@ export const CartContext = createContext<CartContextType>({
   getUserCart: () => {},
   createOrder: () => {},
   shippingCost:0,
+  taxAmount:0,
   pending:false,
   error:null,
 });

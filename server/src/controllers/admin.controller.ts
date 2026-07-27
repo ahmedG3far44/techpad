@@ -107,6 +107,7 @@ export const getTopCustomers = async (
           userId: "$_id",
           name: "$user.name",
           email: "$user.email",
+          profile: "$user.profile",
           totalSpent: 1,
           orderCount: 1,
         },

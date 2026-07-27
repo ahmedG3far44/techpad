@@ -8,6 +8,17 @@ export interface StoreSettings {
   currencyCode: string;
   currencySymbol: string;
   exchangeRate: number;
+  shippingPrice: number;
+  taxPercentage: number;
+  supportEmail: string;
+  supportPhone: string;
+  location: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  tiktokUrl: string;
+  aboutContent: string;
+  privacyContent: string;
+  termsContent: string;
 }
 
 interface CurrencyContextType {
@@ -24,6 +35,17 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     currencyCode: "USD",
     currencySymbol: "$",
     exchangeRate: 1,
+    shippingPrice: 0,
+    taxPercentage: 0,
+    supportEmail: "",
+    supportPhone: "",
+    location: "",
+    facebookUrl: "",
+    instagramUrl: "",
+    tiktokUrl: "",
+    aboutContent: "",
+    privacyContent: "",
+    termsContent: "",
   });
   const [loading, setLoading] = useState(true);
 
@@ -37,13 +59,20 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
         currencyCode: data.currencyCode || "USD",
         currencySymbol: data.currencySymbol || "$",
         exchangeRate: data.exchangeRate || 1,
+        shippingPrice: data.shippingPrice ?? 0,
+        taxPercentage: data.taxPercentage ?? 0,
+        supportEmail: data.supportEmail ?? "",
+        supportPhone: data.supportPhone ?? "",
+        location: data.location ?? "",
+        facebookUrl: data.facebookUrl ?? "",
+        instagramUrl: data.instagramUrl ?? "",
+        tiktokUrl: data.tiktokUrl ?? "",
+        aboutContent: data.aboutContent ?? "",
+        privacyContent: data.privacyContent ?? "",
+        termsContent: data.termsContent ?? "",
       };
       setSettings(s);
-      initPriceFormatter({
-        currencySymbol: s.currencySymbol,
-        exchangeRate: s.exchangeRate,
-        currencyCode: s.currencyCode,
-      });
+      initPriceFormatter(s);
     } catch {
       // keep defaults
     } finally {

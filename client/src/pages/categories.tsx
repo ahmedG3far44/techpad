@@ -341,8 +341,8 @@ function CategoryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                {categoryName?.toUpperCase()}
+              <h1 className="text-xl sm:text-2xl font-bold text-surface-900">
+                {categoryName}
               </h1>
               <p className="text-sm text-zinc-600 mt-2 font-medium">
                 {filteredProducts.length}{" "}
